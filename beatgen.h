@@ -59,14 +59,14 @@ class BeatGen {
         int index() const;
 
         void attachParameters(juce::AudioProcessorValueTreeState &params);
-        void reset(float sampleRate);
+        void reset(double sampleRate);
         void reset();
         void processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
 
     private:
         int                 _index { 0 };
         bool                _started { false };
-        float               _sampleRate { 48000.0f };
+        double               _sampleRate { 48000.0 };
         int                 _currentTime { 0 };
         bool                _masterClockValue { false };
         bool                _clockValue[maxClockCount] { false };

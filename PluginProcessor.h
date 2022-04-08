@@ -38,11 +38,7 @@ class PluginProcessor  : public juce::AudioProcessor {
 
     private:
         juce::AudioProcessorValueTreeState  _params;
-        double                              _sampleRate;
-        int                                 _currentTime;
-        int                                 _samplesPerBlock;
-        int                                 _nextNoteOn;
-        int                                 _nextNoteOff;
+        bool                                _transportRunning { false };
         BeatGen                             _beatGen;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)

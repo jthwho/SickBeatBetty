@@ -5,12 +5,7 @@ PluginProcessor::PluginProcessor() :
     AudioProcessor(
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
-    _params(*this, nullptr, juce::Identifier("params"), juce::AudioProcessorValueTreeState::ParameterLayout()),
-    _sampleRate(0.0),
-    _currentTime(0),
-    _samplesPerBlock(0),
-    _nextNoteOn(-1),
-    _nextNoteOff(-1)
+    _params(*this, nullptr, juce::Identifier("params"), juce::AudioProcessorValueTreeState::ParameterLayout())
 {
     _beatGen.attachParameters(_params);   
 }
@@ -75,10 +70,6 @@ void PluginProcessor::changeProgramName(int index, const juce::String& newName) 
 }
 
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
-    _sampleRate = sampleRate;
-    _samplesPerBlock = samplesPerBlock;
-    _nextNoteOn = 0;
-    _nextNoteOff = -1;
     _beatGen.reset(sampleRate);
     return;
 }
@@ -92,28 +83,27 @@ bool PluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
 }
 
 void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
+    juce::AudioPlayHead::CurrentPositionInfo pos;
+    juce::AudioPlayHead *ph = getPlayHead();
+    if(ph) {
+        ph->getCurrentPosition(pos);
+
+        bool transportRunning = pos.isPlaying || pos.isRecording;
+        if(transportRunning != _transportRunning) {
+            printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
+            if(transportRunning) {
+                _beatGen.reset();
+            }
+            _transportRunning = transportRunning;
+        }
+    }
+
     //jassert(audio.getNumChannels() == 0); // We're a MIDI plugin, so we shouldn't have any audio.
     auto samples = audio.getNumSamples(); // But, we do get a sample count to we can keep track of time.
     
     midi.clear();
     _beatGen.processBlock(audio, midi);
 
-#if 0
-    // If the next note on even happens in this block, we'll go ahead and add it.
-    if(_nextNoteOn != -1 && _nextNoteOn < _currentTime + samples) {
-        int offset = _nextNoteOn - _currentTime;
-        midi.addEvent(juce::MidiMessage::noteOn(1, 48, (juce::uint8)110), offset);
-        _nextNoteOff = _nextNoteOn + (int)(_sampleRate * 0.25);
-        _nextNoteOn = _nextNoteOn + (int)_sampleRate;
-    }
-    // If the next note off even happens in this block, we'll go ahead and add it.
-    if(_nextNoteOff != -1 && _nextNoteOff < _currentTime + samples) {
-        int offset = _nextNoteOff - _currentTime;
-        midi.addEvent(juce::MidiMessage::noteOff(1, 48), offset);
-        _nextNoteOff = -1;
-    }
-#endif
-    _currentTime += samples;
     return;
 }
 

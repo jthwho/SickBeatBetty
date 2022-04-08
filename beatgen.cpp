@@ -60,7 +60,7 @@ void BeatGen::attachParameters(juce::AudioProcessorValueTreeState &params) {
         std::make_unique<juce::AudioParameterFloat>(
             juce::String("bpm"),
             juce::String("BPM"),
-            1.0f, 999.0f, 30.0f //120.0f
+            1.0f, 999.0f, 120.0f
         )
     );
     _bpm = params.getRawParameterValue("bpm");
@@ -69,7 +69,7 @@ void BeatGen::attachParameters(juce::AudioProcessorValueTreeState &params) {
         std::make_unique<juce::AudioParameterInt>(
             juce::String("note"),
             juce::String("Note"),
-            0, 127, (firstNote + _index) % 128, // min, max, default
+            0, 127, (firstNote + _index) % 128,
             juce::String(),
             &midiNoteToString,
             &stringToMidiNote
@@ -91,7 +91,7 @@ void BeatGen::attachParameters(juce::AudioProcessorValueTreeState &params) {
         std::make_unique<juce::AudioParameterFloat>(
             juce::String("mclock_phase_offset"),
             juce::String("Master Clock Phase Offset"),
-            -1.0f, 1.0f, -0.5f
+            -1.0f, 1.0f, 0.0f
         )
     );
     _mclockPhaseOffset = params.getRawParameterValue("mclock_phase_offset");
@@ -114,7 +114,7 @@ void BeatGen::attachParameters(juce::AudioProcessorValueTreeState &params) {
             std::make_unique<juce::AudioParameterBool>(
                 id,
                 juce::String::formatted("Clock %d Enabled", humanClockIndex),
-                false, //i == 0, // Only the first clock should be enabled by default
+                i == 0, // Only the first clock should be enabled by default
                 juce::String()
             )
         );
@@ -144,7 +144,7 @@ void BeatGen::attachParameters(juce::AudioProcessorValueTreeState &params) {
     return;
 }
 
-void BeatGen::reset(float sampleRate) {
+void BeatGen::reset(double sampleRate) {
     _sampleRate = sampleRate;
     reset();
     return;
