@@ -5,13 +5,14 @@ PluginProcessor::PluginProcessor() :
     AudioProcessor(
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
+    _params(*this, nullptr, juce::Identifier("params"), juce::AudioProcessorValueTreeState::ParameterLayout()),
     _sampleRate(0.0),
     _currentTime(0),
     _samplesPerBlock(0),
     _nextNoteOn(-1),
     _nextNoteOff(-1)
 {
-    _beatGen.attachParameters(*this);    
+    _beatGen.attachParameters(_params);   
 }
 
 PluginProcessor::~PluginProcessor() {
@@ -78,6 +79,7 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     _samplesPerBlock = samplesPerBlock;
     _nextNoteOn = 0;
     _nextNoteOff = -1;
+    _beatGen.reset(sampleRate);
     return;
 }
 
@@ -90,11 +92,13 @@ bool PluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
 }
 
 void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
-    jassert(audio.getNumChannels() == 0); // We're a MIDI plugin, so we shouldn't have any audio.
+    //jassert(audio.getNumChannels() == 0); // We're a MIDI plugin, so we shouldn't have any audio.
     auto samples = audio.getNumSamples(); // But, we do get a sample count to we can keep track of time.
     
     midi.clear();
+    _beatGen.processBlock(audio, midi);
 
+#if 0
     // If the next note on even happens in this block, we'll go ahead and add it.
     if(_nextNoteOn != -1 && _nextNoteOn < _currentTime + samples) {
         int offset = _nextNoteOn - _currentTime;
@@ -108,7 +112,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
         midi.addEvent(juce::MidiMessage::noteOff(1, 48), offset);
         _nextNoteOff = -1;
     }
-
+#endif
     _currentTime += samples;
     return;
 }

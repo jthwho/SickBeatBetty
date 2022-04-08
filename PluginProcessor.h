@@ -37,6 +37,7 @@ class PluginProcessor  : public juce::AudioProcessor {
         void setStateInformation (const void *data, int sizeInBytes) override;
 
     private:
+        juce::AudioProcessorValueTreeState  _params;
         double                              _sampleRate;
         int                                 _currentTime;
         int                                 _samplesPerBlock;
