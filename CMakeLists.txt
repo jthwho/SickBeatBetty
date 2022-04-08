@@ -20,7 +20,9 @@ juce_add_plugin(SickBeatBetty
 target_sources(SickBeatBetty
     PRIVATE
         PluginEditor.cpp
-        PluginProcessor.cpp)
+        PluginProcessor.cpp
+        beatgen.cpp
+)
 
 target_compile_definitions(SickBeatBetty
     PUBLIC

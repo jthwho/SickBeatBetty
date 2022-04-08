@@ -5,31 +5,17 @@ PluginProcessor::PluginProcessor() :
     AudioProcessor(
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
-    _params(*this, nullptr, "params", createParameterLayout()),
     _sampleRate(0.0),
     _currentTime(0),
     _samplesPerBlock(0),
     _nextNoteOn(-1),
     _nextNoteOff(-1)
 {
-    _level = _params.getRawParameterValue("level");
+    _beatGen.attachParameters(*this);    
 }
 
 PluginProcessor::~PluginProcessor() {
 
-}
-
-juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParameterLayout() const {
-    juce::AudioProcessorValueTreeState::ParameterLayout layout;
-    
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "level",
-        "Level",
-        0.1f,
-        11.0f,
-        1.0f
-    ));
-    return layout;
 }
 
 const juce::String PluginProcessor::getName() const {
@@ -113,8 +99,8 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     if(_nextNoteOn != -1 && _nextNoteOn < _currentTime + samples) {
         int offset = _nextNoteOn - _currentTime;
         midi.addEvent(juce::MidiMessage::noteOn(1, 48, (juce::uint8)110), offset);
-        _nextNoteOff = _nextNoteOn + (_sampleRate * 0.25);
-        _nextNoteOn = _nextNoteOn + (_sampleRate * *_level);
+        _nextNoteOff = _nextNoteOn + (int)(_sampleRate * 0.25);
+        _nextNoteOn = _nextNoteOn + (int)_sampleRate;
     }
     // If the next note off even happens in this block, we'll go ahead and add it.
     if(_nextNoteOff != -1 && _nextNoteOff < _currentTime + samples) {
@@ -132,7 +118,8 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 }
 
 juce::AudioProcessorEditor * PluginProcessor::createEditor() {
-    return new PluginEditor(*this, _params);
+    //return new PluginEditor(*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 bool PluginProcessor::hasEditor() const {

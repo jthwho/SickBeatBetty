@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "beatgen.h"
 
 class PluginProcessor  : public juce::AudioProcessor {
     public:
@@ -36,15 +37,12 @@ class PluginProcessor  : public juce::AudioProcessor {
         void setStateInformation (const void *data, int sizeInBytes) override;
 
     private:
-        juce::AudioProcessorValueTreeState  _params;
-        std::atomic<float>                  *_level = nullptr;
         double                              _sampleRate;
         int                                 _currentTime;
         int                                 _samplesPerBlock;
         int                                 _nextNoteOn;
         int                                 _nextNoteOff;
-
-        juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
+        BeatGen                             _beatGen;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };
