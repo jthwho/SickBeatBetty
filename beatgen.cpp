@@ -22,6 +22,7 @@ void midiNoteToOctaveNote(int midiNote, int &octave, int &note) {
 }
 
 static juce::String midiNoteToString(int midiNote, int maxLen) {
+    juce::ignoreUnused(maxLen);
     char buf[32] = { 0 };
     int octave, note;
     midiNoteToOctaveNote(midiNote, octave, note);
@@ -30,6 +31,7 @@ static juce::String midiNoteToString(int midiNote, int maxLen) {
 }
 
 static int stringToMidiNote(const juce::String &str) {
+    juce::ignoreUnused(str);
     int ret = 0;
     // FIXME!
     return ret;

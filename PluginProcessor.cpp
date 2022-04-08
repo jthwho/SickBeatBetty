@@ -70,6 +70,7 @@ void PluginProcessor::changeProgramName(int index, const juce::String& newName) 
 }
 
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
+    juce::ignoreUnused(samplesPerBlock);
     _beatGen.reset(sampleRate);
     return;
 }
@@ -98,12 +99,8 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
         }
     }
 
-    //jassert(audio.getNumChannels() == 0); // We're a MIDI plugin, so we shouldn't have any audio.
-    auto samples = audio.getNumSamples(); // But, we do get a sample count to we can keep track of time.
-    
     midi.clear();
     _beatGen.processBlock(audio, midi);
-
     return;
 }
 
@@ -121,9 +118,12 @@ bool PluginProcessor::hasEditor() const {
 }
 
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
+    juce::ignoreUnused(destData);
     return;
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
+    juce::ignoreUnused(data);
+    juce::ignoreUnused(sizeInBytes);
     return;
 }
