@@ -75,7 +75,7 @@ void BeatGen::attachParameters(juce::AudioProcessor &ap) {
     auto masterClock = std::make_unique<juce::AudioParameterInt>(
         juce::String("master_clock"),
         juce::String("Total Clocks"),
-        1, 16 * maxBars, 16,
+        1, maxClockRate, 16,
         juce::String()
     );
     masterClock->addListener(&_masterClock);
@@ -89,6 +89,33 @@ void BeatGen::attachParameters(juce::AudioProcessor &ap) {
     );
     bars->addListener(&_bars);
     group->addChild(std::move(bars));
+
+    for(int i = 0; i < maxClockCount; i++) {
+        auto cgroup = std::make_unique<juce::AudioProcessorParameterGroup>(
+            juce::String::formatted("clock%d", i),
+            juce::String::formatted("Clock %d", i + 1),
+            juce::String("|")
+        );
+        auto enabled = std::make_unique<juce::AudioParameterBool>(
+            juce::String("enabled"),
+            juce::String("Enabled"),
+            i == 0, // Only the first clock should be enabled by default
+            juce::String()
+        );
+        enabled->addListener(&_clockEnabled[i]);
+        cgroup->addChild(std::move(enabled));
+
+        auto rate = std::make_unique<juce::AudioParameterInt>(
+            juce::String("rate"),
+            juce::String("Rate"),
+            1, maxClockRate, 4,
+            juce::String()
+        );
+        rate->addListener(&_clockRate[i]);
+        cgroup->addChild(std::move(rate));
+
+        group->addChild(std::move(cgroup));
+    }
     
     ap.addParameterGroup(std::move(group));
     return;

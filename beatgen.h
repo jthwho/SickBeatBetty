@@ -7,7 +7,8 @@ class BeatGen {
         static const int firstNote = 36;
         static const int maxClockCount = 4;
         static const int maxBars = 8;
-        
+        static const int maxClockRate = maxBars * 16;
+
         BeatGen(int index = 0);
         ~BeatGen();
 
@@ -41,7 +42,7 @@ class BeatGen {
         ParamValue<int>     _masterClock { 16 };
         ParamValue<int>     _bars { 1 };
         ParamValue<bool>    _clockEnabled[maxClockCount] { false };
-        ParamValue<float>   _clockRate[maxClockCount] { 4.0 };
+        ParamValue<int>     _clockRate[maxClockCount] { 4 };
 
 };
 
