@@ -1,6 +1,18 @@
 #include "beatgen.h"
 
-static const char *noteName[] = {
+static const char wholeNoteName[] = "CDEFGAB";
+static const int wholeNoteOffset[] = {
+    0,
+    2,
+    4,
+    5,
+    7,
+    9,
+    11
+};
+static const int wholeNoteCount = 7;
+
+static const char *halfNoteName[] = {
     "C",        // 0
     "C#",       // 1
     "D",        // 2
@@ -14,10 +26,11 @@ static const char *noteName[] = {
     "A#",       // 10
     "B"         // 11
 };
+static const int halfNoteCount = 12;
 
 void midiNoteToOctaveNote(int midiNote, int &octave, int &note) {
-    octave = (midiNote / 12) - 1;
-    note = midiNote % 12;
+    octave = (midiNote / halfNoteCount) - 2;
+    note = midiNote % halfNoteCount;
     return;
 }
 
@@ -26,15 +39,47 @@ static juce::String midiNoteToString(int midiNote, int maxLen) {
     char buf[32] = { 0 };
     int octave, note;
     midiNoteToOctaveNote(midiNote, octave, note);
-    snprintf(buf, sizeof(buf) - 1, "%d - %s%d", midiNote, noteName[note], octave);
+    snprintf(buf, sizeof(buf) - 1, "%s%d", halfNoteName[note], octave);
     return buf;
 }
 
-static int stringToMidiNote(const juce::String &str) {
-    juce::ignoreUnused(str);
-    int ret = 0;
-    // FIXME!
-    return ret;
+static int stringToMidiNote(const juce::String &val) {
+    auto str = val.trim().toUpperCase();
+    // Check to see if we've been given a note.
+    int note = -1;
+    for(int i = 0; i < wholeNoteCount; i++) {
+        if(str.startsWithChar(wholeNoteName[i])) {
+            note = wholeNoteOffset[i];
+            break;
+        }
+    }
+    if(note != -1) {
+        int octave = 4;
+        bool neg = false;
+        str = str.substring(1); // Remove the note
+        if(str.startsWithChar('#')) {
+            note++;
+            str = str.substring(1); // Remove the sharp
+        }
+        if(str.startsWithChar('B')) {
+            note--;
+            str = str.substring(1); // Remove the flat
+        }
+        if(str.startsWithChar('-')) {
+            neg = true;
+            str = str.substring(1); // Remove the negative sign
+        }
+        octave = str.getIntValue(); // No way to know if this fails, which is dumb.
+        if(neg) octave *= -1;
+        octave += 2;
+        octave *= halfNoteCount;
+        note += octave;
+    } else {
+        note = str.getIntValue();
+    }
+    if(note < 0) note = 0;
+    else if(note > 127) note = 127;
+    return note;
 }
 
 BeatGen::BeatGen(int index) :
