@@ -1,5 +1,7 @@
 #include "beatgen.h"
 
+#define PARAM_PREFIX    "beatgen"
+
 static const char wholeNoteName[] = "CDEFGAB";
 static const int wholeNoteOffset[] = {
     0,
@@ -85,108 +87,137 @@ static int stringToMidiNote(const juce::String &val) {
 BeatGen::BeatGen(int index) :
     _index(index)
 {
+    _enabled.setup(
+        _params, 
+        juce::String::formatted(PARAM_PREFIX "%d_enabled", _index),
+        juce::String::formatted("G%d Enabled", _index + 1), 
+        [](const ParamValue &p) {
+            return std::make_unique<juce::AudioParameterBool>(p.id(), p.name(), false);
+        }
+    );
+    
+    _bpm.setup(
+        _params,
+        juce::String::formatted(PARAM_PREFIX "%d_bpm", _index),
+        juce::String::formatted("G%d BPM", _index + 1),
+        [](const ParamValue &p) {
+            return std::make_unique<juce::AudioParameterFloat>(p.id(), p.name(), 1.0f, 999.0f, 120.0f);
+        }
+    );
+    
+    _note.setup(
+        _params,
+        juce::String::formatted(PARAM_PREFIX "%d_note", _index),
+        juce::String::formatted("G%d Note", _index + 1),
+        [this](const ParamValue &p) {
+            return std::make_unique<juce::AudioParameterInt>(
+                p.id(), p.name(),
+                0, 127, (firstNote + _index) % 128,
+                juce::String(),
+                &midiNoteToString,
+                &stringToMidiNote
+            );
+        }
+    );
+    
+    _mclockRate.setup(
+        _params,
+        juce::String::formatted(PARAM_PREFIX "%d_mclock_rate", _index),
+        juce::String::formatted("G%d Master Clock Rate", _index + 1),
+        [](const ParamValue &p) {
+            return std::make_unique<juce::AudioParameterInt>(
+                p.id(), p.name(), 
+                1, maxClockRate, 16,
+                juce::String()
+            );
+        }
+    );
 
+    _mclockPhaseOffset.setup(
+        _params,
+        juce::String::formatted(PARAM_PREFIX "%d_mclock_phase_offset", _index),
+        juce::String::formatted("G%d Master Clock Phase Offset", _index + 1),
+        [](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterFloat>(
+                    p.id(), p.name(),
+                    -1.0f, 1.0f, 0.0f
+                );
+        }
+    );
+    
+    _bars.setup(
+        _params,
+        juce::String::formatted(PARAM_PREFIX "%d_bars", _index),
+        juce::String::formatted(PARAM_PREFIX "G%d Bars", _index + 1),
+        [](const ParamValue &p) {
+            return std::make_unique<juce::AudioParameterInt>(
+                p.id(), p.name(),
+                1, maxBars, 1,
+                juce::String()
+            );
+        }
+    );
+    
+    for(int i = 0; i < maxClockCount; i++) {
+        _clockEnabled[i].setup(
+            _params,
+            juce::String::formatted(PARAM_PREFIX "%d_clock%d_enabled", _index, i),
+            juce::String::formatted("G%d Clock %d Enabled", _index + 1, i + 1),
+            [this](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterBool>(
+                    p.id(), p.name(),
+                    _index == 0, // Only the first clock should be enabled by default
+                    juce::String()
+                );
+            }
+        );
+        
+        _clockRate[i].setup(
+            _params,
+            juce::String::formatted(PARAM_PREFIX "%d_clock%d_rate", _index, i),
+            juce::String::formatted("G%d Clock %d Rate", _index + 1, i + 1),
+            [](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterInt>(
+                    p.id(), p.name(),
+                    1, maxClockRate, 4,
+                    juce::String()
+                );
+            }
+        );
+
+        _clockPhaseOffset[i].setup(
+            _params,
+            juce::String::formatted(PARAM_PREFIX "%d_clock%d_phase_offset", _index, i),
+            juce::String::formatted("G%d Clock %d Phase Offset", _index + 1, i + 1),
+            [](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterFloat>(
+                    p.id(), p.name(),
+                    -1.0f, 1.0f, 0.0f
+                );
+            }
+        );
+    }
 }
 
 BeatGen::~BeatGen() {
 
 }
 
-void BeatGen::attachParameters(juce::AudioProcessorValueTreeState &params) {
-    
-    params.createAndAddParameter(
-        std::make_unique<juce::AudioParameterBool>(
-            juce::String("enabled"),
-            juce::String("Enabled"),
-            false
-        )
+std::unique_ptr<juce::AudioProcessorParameterGroup> BeatGen::createParameterLayout() const {
+    auto group = std::make_unique<juce::AudioProcessorParameterGroup>(
+        juce::String::formatted(PARAM_PREFIX "%d", _index),
+        juce::String::formatted("Beat Gen %d", _index + 1),
+        "|"
     );
-    _enabled = params.getRawParameterValue("enabled");
+    for(auto i : _params) {
+        group->addChild(i->layout());
+    }
+    return group;
+}
 
-    params.createAndAddParameter(
-        std::make_unique<juce::AudioParameterFloat>(
-            juce::String("bpm"),
-            juce::String("BPM"),
-            1.0f, 999.0f, 120.0f
-        )
-    );
-    _bpm = params.getRawParameterValue("bpm");
-    
-    params.createAndAddParameter(
-        std::make_unique<juce::AudioParameterInt>(
-            juce::String("note"),
-            juce::String("Note"),
-            0, 127, (firstNote + _index) % 128,
-            juce::String(),
-            &midiNoteToString,
-            &stringToMidiNote
-        )
-    );
-    _note = params.getRawParameterValue("note");
-
-    params.createAndAddParameter(
-        std::make_unique<juce::AudioParameterInt>(
-            juce::String("mclock_rate"),
-            juce::String("Master Clock Rate"),
-            1, maxClockRate, 16,
-            juce::String()
-        )
-    );
-    _mclockRate = params.getRawParameterValue("mclock_rate");
-
-    params.createAndAddParameter(
-        std::make_unique<juce::AudioParameterFloat>(
-            juce::String("mclock_phase_offset"),
-            juce::String("Master Clock Phase Offset"),
-            -1.0f, 1.0f, 0.0f
-        )
-    );
-    _mclockPhaseOffset = params.getRawParameterValue("mclock_phase_offset");
-
-    params.createAndAddParameter(
-        std::make_unique<juce::AudioParameterInt>(
-            juce::String("bars"),
-            juce::String("Total Bars"),
-            1, maxBars, 1,
-            juce::String()
-        )
-    );
-    _bars = params.getRawParameterValue("bars");
-    
-    for(int i = 0; i < maxClockCount; i++) {
-        juce::String id;
-        int humanClockIndex = i + 1;
-        id = juce::String::formatted("clock%d_enabled", i);
-        params.createAndAddParameter(
-            std::make_unique<juce::AudioParameterBool>(
-                id,
-                juce::String::formatted("Clock %d Enabled", humanClockIndex),
-                i == 0, // Only the first clock should be enabled by default
-                juce::String()
-            )
-        );
-        _clockEnabled[i] = params.getRawParameterValue(id);
-
-        id = juce::String::formatted("clock%d_rate", i);
-        params.createAndAddParameter(
-            std::make_unique<juce::AudioParameterInt>(
-                id,
-                juce::String::formatted("Clock %d Rate", humanClockIndex),
-                1, maxClockRate, 4,
-                juce::String()
-            )
-        );
-        _clockRate[i] = params.getRawParameterValue(id);
-
-        id = juce::String::formatted("clock%d_phase_offset", i);
-        params.createAndAddParameter(
-            std::make_unique<juce::AudioParameterFloat>(
-                id,
-                juce::String::formatted("Clock %d Phase Offset", humanClockIndex),
-                -1.0f, 1.0f, 0.0f
-            )
-        );
-        _clockPhaseOffset[i] = params.getRawParameterValue(id);
+void BeatGen::attachParams(juce::AudioProcessorValueTreeState &params) {
+    for(auto i : _params) {
+        jassert(i->attach(params));
     }
     return;
 }
@@ -217,7 +248,7 @@ static double phaseShiftAndMultiply(double inputPhase, double offset, double mul
 }
 
 void BeatGen::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
-    if(*_enabled < 0.5f) {
+    if(_enabled.value() < 0.5f) {
         _started = false;
         return;
     }
@@ -231,17 +262,17 @@ void BeatGen::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &mi
     //jassert(audio.getNumChannels() == 0); // We're a MIDI plugin, so we shouldn't have any audio.
     auto samples = audio.getNumSamples(); // But, we do get a sample count to we can keep track of time.
 
-    double bpm = *_bpm;
-    double bars = *_bars;
-    double mclockRate = *_mclockRate;
-    double mclockPhaseOffset = *_mclockPhaseOffset;
+    double bpm = _bpm.value();
+    double bars = _bars.value();
+    double mclockRate = _mclockRate.value();
+    double mclockPhaseOffset = _mclockPhaseOffset.value();
     double phaseLen = 60.0f / bpm * (4.0 * bars);  // Length of one phase in seconds.
     double clockPhaseOffset[maxClockRate];
     double clockRate[maxClockRate];
 
     for(int i = 0; i < maxClockCount; i++) {
-        clockPhaseOffset[i] = *_clockPhaseOffset[i];
-        clockRate[i] = *_clockRate[i];
+        clockPhaseOffset[i] = _clockPhaseOffset[i].value();
+        clockRate[i] = _clockRate[i].value();
     }
 
     // Walk forward in time and compute all the clocks.
@@ -277,7 +308,7 @@ void BeatGen::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &mi
         bool latchClockValue = masterClockValue;
         for(int n = 0; n < maxClockCount; n++) {
             bool inEdge, inValue;
-            if(*_clockEnabled[n] >= 0.5) {
+            if(_clockEnabled[n].value() >= 0.5) {
                 inEdge = clockEdge[n];
                 inValue = clockValue[n];
             } else {
@@ -293,7 +324,7 @@ void BeatGen::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &mi
 
         if(latchClockEdge) {
             if(latchClockValue) {
-                int note = (int)*_note;
+                int note = (int)_note.value();
                 _lastNote = note;
                 printf("ON    %lf %lf %lf\n", phase, now, now - _lastNoteOnTime);
                 midi.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)110), i);

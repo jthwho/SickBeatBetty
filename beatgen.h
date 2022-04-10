@@ -46,6 +46,47 @@ class Latch {
         bool _latched;
 };
 
+class ParamValue {
+    friend class BeatGen; // FIXME: Move this into the generic version of what we finally inherit BeatGen from
+    public:
+        typedef std::vector<ParamValue *> PtrList;
+        typedef std::unique_ptr<juce::RangedAudioParameter> RangedAudioParamUniq;
+        typedef std::function<RangedAudioParamUniq(const ParamValue &)> RangedAudioParamFunc;
+
+        ParamValue() { 
+
+        }
+
+        bool attach(const juce::AudioProcessorValueTreeState &state) {
+            _value = state.getRawParameterValue(_id);
+            return _value != nullptr;
+        }
+
+        RangedAudioParamUniq layout() const {
+            return _func(*this);
+        }
+
+        juce::String id() const { return _id; }
+        juce::String name() const { return _name; }
+        float value() const { return *_value; }
+
+    protected:
+        void setup(PtrList &list, const juce::String &id, const juce::String &name, RangedAudioParamFunc func) {
+            jassert(_id.isEmpty()); // Make sure setup isn't called twice.
+            _id = id;
+            _name = name;
+            _func = func;
+            list.push_back(this);
+            return;
+        }
+
+    private:
+        juce::String            _id;
+        juce::String            _name;
+        RangedAudioParamFunc    _func;
+        std::atomic<float>      *_value = nullptr;
+};
+
 class BeatGen {
     public:
         static const int firstNote = 36;
@@ -58,7 +99,11 @@ class BeatGen {
 
         int index() const;
 
-        void attachParameters(juce::AudioProcessorValueTreeState &params);
+        std::unique_ptr<juce::AudioProcessorParameterGroup> createParameterLayout() const;
+        
+        // Must be called after we create a parameter layout.
+        void attachParams(juce::AudioProcessorValueTreeState &params);
+
         void reset(double sampleRate);
         void reset();
         void processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
@@ -66,7 +111,7 @@ class BeatGen {
     private:
         int                 _index { 0 };
         bool                _started { false };
-        double               _sampleRate { 48000.0 };
+        double              _sampleRate { 48000.0 };
         int                 _currentTime { 0 };
         bool                _masterClockValue { false };
         bool                _clockValue[maxClockCount] { false };
@@ -75,15 +120,16 @@ class BeatGen {
         double              _lastNoteOnTime { 0.0 };
 
         // Parameters
-        std::atomic<float>  *_enabled = nullptr;
-        std::atomic<float>  *_bpm = nullptr;
-        std::atomic<float>  *_note = nullptr;
-        std::atomic<float>  *_mclockRate = nullptr;
-        std::atomic<float>  *_mclockPhaseOffset = nullptr;
-        std::atomic<float>  *_bars = nullptr;
-        std::atomic<float>  *_clockEnabled[maxClockCount] = { nullptr };
-        std::atomic<float>  *_clockRate[maxClockCount] = { nullptr };
-        std::atomic<float>  *_clockPhaseOffset[maxClockCount] = { nullptr };
+        ParamValue::PtrList         _params;
+        ParamValue                  _enabled;
+        ParamValue                  _bpm;
+        ParamValue                  _note ;
+        ParamValue                  _mclockRate;
+        ParamValue                  _mclockPhaseOffset;
+        ParamValue                  _bars;
+        ParamValue                  _clockEnabled[maxClockCount];
+        ParamValue                  _clockRate[maxClockCount];
+        ParamValue                  _clockPhaseOffset[maxClockCount];
 };
 
 inline int BeatGen::index() const {

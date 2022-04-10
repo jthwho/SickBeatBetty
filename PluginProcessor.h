@@ -37,9 +37,12 @@ class PluginProcessor  : public juce::AudioProcessor {
         void setStateInformation (const void *data, int sizeInBytes) override;
 
     private:
-        juce::AudioProcessorValueTreeState  _params;
-        bool                                _transportRunning { false };
-        BeatGen                             _beatGen;
+        // Order here maters.  There are init dependency on each other.
+        BeatGen                                                 _beatGen;
+        juce::AudioProcessorValueTreeState                      _params;
+        bool                                                    _transportRunning { false };
+
+        juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };

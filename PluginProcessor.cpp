@@ -5,13 +5,20 @@ PluginProcessor::PluginProcessor() :
     AudioProcessor(
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
-    _params(*this, nullptr, juce::Identifier("params"), juce::AudioProcessorValueTreeState::ParameterLayout())
+    _beatGen(),
+    _params(*this, nullptr, juce::Identifier("params"), createParameterLayout())
 {
-    _beatGen.attachParameters(_params);   
+    _beatGen.attachParams(_params);    
 }
 
 PluginProcessor::~PluginProcessor() {
 
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParameterLayout() const {
+    juce::AudioProcessorValueTreeState::ParameterLayout ret;
+    ret.add(_beatGen.createParameterLayout());
+    return ret;
 }
 
 const juce::String PluginProcessor::getName() const {
@@ -109,7 +116,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 }
 
 juce::AudioProcessorEditor * PluginProcessor::createEditor() {
-    //return new PluginEditor(*this);
+    //return new PluginEditor(*this, _params);
     return new juce::GenericAudioProcessorEditor(*this);
 }
 
@@ -118,12 +125,18 @@ bool PluginProcessor::hasEditor() const {
 }
 
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
-    juce::ignoreUnused(destData);
+    auto state = _params.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
     return;
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
-    juce::ignoreUnused(data);
-    juce::ignoreUnused(sizeInBytes);
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary (data, sizeInBytes));
+    if(xmlState.get() != nullptr) {
+        if(xmlState->hasTagName(_params.state.getType())) {
+            _params.replaceState (juce::ValueTree::fromXml(*xmlState));
+        }
+    }
     return;
 }
