@@ -224,6 +224,7 @@ void BeatGen::attachParams(juce::AudioProcessorValueTreeState &params) {
 void BeatGen::reset(double sampleRate) {
     _sampleRate = sampleRate;
     reset();
+    updateBeats();
     return;
 }
 
@@ -246,6 +247,51 @@ static double phaseShiftAndMultiply(double inputPhase, double offset, double mul
     return ret;
 }
 
+void BeatGen::updateBeats() {
+    _beats.clear();
+    int steps = 16;
+    int genSteps = steps * 4;
+    int note = (int)_note.value();
+    for(int i = 0; i < genSteps; i++) {
+        Beat beat;
+        beat.note = note;
+        beat.on = true;
+        beat.start = (double)i / (double)steps;
+        if(i % 4 == 0) beat.velocity = 0.9;
+        if(beat.velocity > 0.0) {
+            printf("G%d beat @ %lf - %lf\n", _index, beat.start, beat.velocity);
+            _beats.push_back(beat);
+
+            Beat off = beat;
+            off.on = false;
+            off.velocity = 0.0;
+            off.start += 0.125;
+            _beats.push_back(off);
+
+        }
+    }
+    return;
+}
+
+void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
+    // Check all the beats and schedule the ones that occur during this generate period.
+    int startPhase = (int)state.start;
+    for(auto &i : _beats) {
+        double start = (double)startPhase + i.start;
+        if(start >= state.start && start < state.end) {
+            int offset = (int)round((start - state.start) / state.stepSize);
+            if(i.on) {
+                midi.addEvent(juce::MidiMessage::noteOn(1, i.note, (float)i.velocity), offset);
+            } else {
+                midi.addEvent(juce::MidiMessage::noteOff(1, i.note), offset);
+            } 
+        }
+    }
+    return;
+}
+
+
+/*
 void BeatGen::processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
     if(!_started) {
         printf("STARTED!\n");
@@ -334,3 +380,4 @@ void BeatGen::processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::Mi
     }
     return;
 }
+*/

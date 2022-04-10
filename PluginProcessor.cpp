@@ -88,6 +88,7 @@ void PluginProcessor::changeProgramName(int index, const juce::String& newName) 
 
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::ignoreUnused(samplesPerBlock);
+    _sampleRate = sampleRate;
     for(auto &i : _beatGen) i.reset(sampleRate);
     return;
 }
@@ -104,23 +105,45 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     juce::AudioPlayHead::CurrentPositionInfo pos;
     juce::AudioPlayHead *ph = getPlayHead();
     double bpm = 120.0;
-    if(ph) {
+    bool transportRunning = true;
+
+    if(ph != nullptr) {
+        // If we've got a playhead, we're running as a plugin
         ph->getCurrentPosition(pos);
         bpm = pos.bpm;
-        bool transportRunning = pos.isPlaying || pos.isRecording;
-        if(transportRunning != _transportRunning) {
-            printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
-            if(transportRunning) {
-                for(auto &i : _beatGen) i.reset();
-            }
-            _transportRunning = transportRunning;
-        }
+        transportRunning = pos.isPlaying || pos.isRecording;
+        _now = pos.timeInSeconds;
+
     } else if(_bpm != nullptr) {
+        // If we've got a _bpm parameter, we're running standalone
         bpm = *_bpm;
+        transportRunning = true;
     }
 
-    midi.clear();
-    for(auto &i : _beatGen) i.processBlock(bpm, audio, midi);
+    // Check for a transport state change.
+    if(transportRunning != _transportRunning) {
+        printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
+        if(transportRunning) {
+            for(auto &i : _beatGen) i.reset();
+        } else {
+            _now = 0.0;
+        }
+        _transportRunning = transportRunning;
+    }
+
+    BeatGen::GenerateState genState;
+    double steps = (double)audio.getNumSamples();
+    double genLen = steps / _sampleRate;
+    double phaseLen = 60.0 / bpm * 4.0;
+    genState.stepSize = 1.0 / _sampleRate;
+    genState.start = _now / phaseLen;
+    genState.end = (_now + genLen) / phaseLen;
+    
+    printf("Gen %lf %lf %lf %d\n", _now, genState.start, genState.end, audio.getNumSamples());
+    if(!transportRunning) return;
+    for(auto &i : _beatGen) i.generate(genState, midi);
+
+    _now += genLen;
     return;
 }
 

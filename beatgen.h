@@ -92,6 +92,19 @@ class ParamValue {
 
 class BeatGen {
     public:
+        struct GenerateState {
+            double  start = { 0.0 };      // Start of generate window in phase units
+            double  end = { 0.0 };        // End of generate window in phase units
+            double  stepSize = { 0.0 };   // Step size in phase units.
+        };
+
+        struct Beat {
+            int     note = 0;
+            bool    on = true;
+            double  start = 0.0;
+            double  velocity = 0.0;
+        };
+
         static const int firstNote = 36;
         static const int maxClockCount = 4;
         static const int maxBars = 8;
@@ -109,7 +122,9 @@ class BeatGen {
 
         void reset(double sampleRate);
         void reset();
-        void processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
+        void generate(const GenerateState &state, juce::MidiBuffer &midi);
+
+        //void processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
 
     private:
         int                 _index { 0 };
@@ -122,6 +137,7 @@ class BeatGen {
         int                 _lastNote { 0 };
         double              _lastNoteOnTime { 0.0 };
         double              _bpm = 120.0;
+        std::vector<Beat>   _beats;
 
         // Parameters
         ParamValue::PtrList         _params;
@@ -133,6 +149,8 @@ class BeatGen {
         ParamValue                  _clockEnabled[maxClockCount];
         ParamValue                  _clockRate[maxClockCount];
         ParamValue                  _clockPhaseOffset[maxClockCount];
+
+        void updateBeats();
 
         static int nextIndex(); // FIXME: This is lame.
 };
