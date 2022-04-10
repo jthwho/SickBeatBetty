@@ -96,15 +96,6 @@ BeatGen::BeatGen(int index) :
         }
     );
     
-    _bpm.setup(
-        _params,
-        juce::String::formatted(PARAM_PREFIX "%d_bpm", _index),
-        juce::String::formatted("G%d BPM", _index + 1),
-        [](const ParamValue &p) {
-            return std::make_unique<juce::AudioParameterFloat>(p.id(), p.name(), 1.0f, 999.0f, 120.0f);
-        }
-    );
-    
     _note.setup(
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_note", _index),
@@ -247,7 +238,7 @@ static double phaseShiftAndMultiply(double inputPhase, double offset, double mul
     return ret;
 }
 
-void BeatGen::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
+void BeatGen::processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
     if(_enabled.value() < 0.5f) {
         _started = false;
         return;
@@ -262,7 +253,6 @@ void BeatGen::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &mi
     //jassert(audio.getNumChannels() == 0); // We're a MIDI plugin, so we shouldn't have any audio.
     auto samples = audio.getNumSamples(); // But, we do get a sample count to we can keep track of time.
 
-    double bpm = _bpm.value();
     double bars = _bars.value();
     double mclockRate = _mclockRate.value();
     double mclockPhaseOffset = _mclockPhaseOffset.value();

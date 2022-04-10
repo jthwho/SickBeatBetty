@@ -8,7 +8,8 @@ PluginProcessor::PluginProcessor() :
     _beatGen(),
     _params(*this, nullptr, juce::Identifier("params"), createParameterLayout())
 {
-    _beatGen.attachParams(_params);    
+    _beatGen.attachParams(_params);
+    _bpm = _params.getRawParameterValue("bpm");    
 }
 
 PluginProcessor::~PluginProcessor() {
@@ -17,6 +18,15 @@ PluginProcessor::~PluginProcessor() {
 
 juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParameterLayout() const {
     juce::AudioProcessorValueTreeState::ParameterLayout ret;
+    // If we're standalone, the BPM needs to come from a parameter.  If not,
+    // we get it from the playhead
+    if(wrapperType == wrapperType_Standalone) {
+        ret.add(std::make_unique<juce::AudioParameterFloat>(
+            "bpm", 
+            "BPM",
+            1.0f, 999.0f, 120.0f
+        ));
+    }
     ret.add(_beatGen.createParameterLayout());
     return ret;
 }
@@ -93,9 +103,10 @@ bool PluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
 void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
     juce::AudioPlayHead::CurrentPositionInfo pos;
     juce::AudioPlayHead *ph = getPlayHead();
+    double bpm = 120.0;
     if(ph) {
         ph->getCurrentPosition(pos);
-
+        bpm = pos.bpm;
         bool transportRunning = pos.isPlaying || pos.isRecording;
         if(transportRunning != _transportRunning) {
             printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
@@ -104,10 +115,12 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
             }
             _transportRunning = transportRunning;
         }
+    } else if(_bpm != nullptr) {
+        bpm = *_bpm;
     }
 
     midi.clear();
-    _beatGen.processBlock(audio, midi);
+    _beatGen.processBlock(bpm, audio, midi);
     return;
 }
 

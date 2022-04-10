@@ -41,8 +41,8 @@ class PluginProcessor  : public juce::AudioProcessor {
         BeatGen                                                 _beatGen;
         juce::AudioProcessorValueTreeState                      _params;
         bool                                                    _transportRunning { false };
+        std::atomic<float>                                      *_bpm = nullptr;
 
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
-
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };

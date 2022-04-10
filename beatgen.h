@@ -106,7 +106,7 @@ class BeatGen {
 
         void reset(double sampleRate);
         void reset();
-        void processBlock(juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
+        void processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
 
     private:
         int                 _index { 0 };
@@ -118,12 +118,12 @@ class BeatGen {
         Latch               _clockLatch[maxClockCount];
         int                 _lastNote { 0 };
         double              _lastNoteOnTime { 0.0 };
+        double              _bpm = 120.0;
 
         // Parameters
         ParamValue::PtrList         _params;
         ParamValue                  _enabled;
-        ParamValue                  _bpm;
-        ParamValue                  _note ;
+        ParamValue                  _note;
         ParamValue                  _mclockRate;
         ParamValue                  _mclockPhaseOffset;
         ParamValue                  _bars;
