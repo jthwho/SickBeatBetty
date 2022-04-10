@@ -84,8 +84,13 @@ static int stringToMidiNote(const juce::String &val) {
     return note;
 }
 
-BeatGen::BeatGen(int index) :
-    _index(index)
+int BeatGen::nextIndex() {
+    static int index = 0;
+    return index++;
+}
+
+BeatGen::BeatGen() :
+    _index(nextIndex()) 
 {
     _enabled.setup(
         _params, 

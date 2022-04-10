@@ -5,6 +5,7 @@
 
 class PluginProcessor  : public juce::AudioProcessor {
     public:
+        static const int beatGenCount = 8;
 
         PluginProcessor();
         ~PluginProcessor() override;
@@ -38,7 +39,7 @@ class PluginProcessor  : public juce::AudioProcessor {
 
     private:
         // Order here maters.  There are init dependency on each other.
-        BeatGen                                                 _beatGen;
+        BeatGen                                                 _beatGen[beatGenCount];
         juce::AudioProcessorValueTreeState                      _params;
         bool                                                    _transportRunning { false };
         std::atomic<float>                                      *_bpm = nullptr;

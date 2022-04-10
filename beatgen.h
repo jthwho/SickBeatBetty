@@ -94,7 +94,7 @@ class BeatGen {
         static const int maxBars = 8;
         static const int maxClockRate = maxBars * 16;
 
-        BeatGen(int index = 0);
+        BeatGen();
         ~BeatGen();
 
         int index() const;
@@ -130,6 +130,8 @@ class BeatGen {
         ParamValue                  _clockEnabled[maxClockCount];
         ParamValue                  _clockRate[maxClockCount];
         ParamValue                  _clockPhaseOffset[maxClockCount];
+
+        static int nextIndex(); // FIXME: This is lame.
 };
 
 inline int BeatGen::index() const {

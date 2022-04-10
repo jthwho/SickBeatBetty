@@ -8,7 +8,7 @@ PluginProcessor::PluginProcessor() :
     _beatGen(),
     _params(*this, nullptr, juce::Identifier("params"), createParameterLayout())
 {
-    _beatGen.attachParams(_params);
+    for(auto &i : _beatGen) i.attachParams(_params);
     _bpm = _params.getRawParameterValue("bpm");    
 }
 
@@ -27,7 +27,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
             1.0f, 999.0f, 120.0f
         ));
     }
-    ret.add(_beatGen.createParameterLayout());
+    for(auto &i : _beatGen) ret.add(i.createParameterLayout());
     return ret;
 }
 
@@ -88,7 +88,7 @@ void PluginProcessor::changeProgramName(int index, const juce::String& newName) 
 
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::ignoreUnused(samplesPerBlock);
-    _beatGen.reset(sampleRate);
+    for(auto &i : _beatGen) i.reset(sampleRate);
     return;
 }
 
@@ -111,7 +111,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
         if(transportRunning != _transportRunning) {
             printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
             if(transportRunning) {
-                _beatGen.reset();
+                for(auto &i : _beatGen) i.reset();
             }
             _transportRunning = transportRunning;
         }
@@ -120,7 +120,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     }
 
     midi.clear();
-    _beatGen.processBlock(bpm, audio, midi);
+    for(auto &i : _beatGen) i.processBlock(bpm, audio, midi);
     return;
 }
 
