@@ -68,14 +68,16 @@ class ParamValue {
 
         juce::String id() const { return _id; }
         juce::String name() const { return _name; }
+        int index() const { return _index; }
         float value() const { return *_value; }
 
     protected:
-        void setup(PtrList &list, const juce::String &id, const juce::String &name, RangedAudioParamFunc func) {
+        void setup(PtrList &list, const juce::String &id, const juce::String &name, RangedAudioParamFunc func, int index = 0) {
             jassert(_id.isEmpty()); // Make sure setup isn't called twice.
             _id = id;
             _name = name;
             _func = func;
+            _index = index;
             list.push_back(this);
             return;
         }
@@ -83,7 +85,8 @@ class ParamValue {
     private:
         juce::String            _id;
         juce::String            _name;
-        RangedAudioParamFunc    _func;
+        RangedAudioParamFunc    _func = nullptr;
+        int                     _index = 0;
         std::atomic<float>      *_value = nullptr;
 };
 

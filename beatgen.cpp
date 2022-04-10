@@ -159,13 +159,14 @@ BeatGen::BeatGen() :
             _params,
             juce::String::formatted(PARAM_PREFIX "%d_clock%d_enabled", _index, i),
             juce::String::formatted("G%d Clock %d Enabled", _index + 1, i + 1),
-            [this](const ParamValue &p) {
+            [](const ParamValue &p) {
                 return std::make_unique<juce::AudioParameterBool>(
                     p.id(), p.name(),
-                    _index == 0, // Only the first clock should be enabled by default
+                    p.index() == 0, // Only the first clock should be enabled by default
                     juce::String()
                 );
-            }
+            },
+            i
         );
         
         _clockRate[i].setup(
@@ -178,7 +179,8 @@ BeatGen::BeatGen() :
                     1, maxClockRate, 4,
                     juce::String()
                 );
-            }
+            },
+            i
         );
 
         _clockPhaseOffset[i].setup(
@@ -190,7 +192,8 @@ BeatGen::BeatGen() :
                     p.id(), p.name(),
                     -1.0f, 1.0f, 0.0f
                 );
-            }
+            },
+            i
         );
     }
 }
@@ -244,10 +247,6 @@ static double phaseShiftAndMultiply(double inputPhase, double offset, double mul
 }
 
 void BeatGen::processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi) {
-    if(_enabled.value() < 0.5f) {
-        _started = false;
-        return;
-    }
     if(!_started) {
         printf("STARTED!\n");
         reset();
@@ -264,6 +263,7 @@ void BeatGen::processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::Mi
     double phaseLen = 60.0f / bpm * (4.0 * bars);  // Length of one phase in seconds.
     double clockPhaseOffset[maxClockRate];
     double clockRate[maxClockRate];
+    bool enabled = _enabled.value() >= 0.5;
 
     for(int i = 0; i < maxClockCount; i++) {
         clockPhaseOffset[i] = _clockPhaseOffset[i].value();
@@ -284,7 +284,7 @@ void BeatGen::processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::Mi
         bool masterClockValue = masterClockPhase < 0.5;
         bool masterClockEdge = masterClockValue != _masterClockValue;
         _masterClockValue = masterClockValue;
-        if(masterClockEdge) printf("MCLK  %lf %lf %s %d\n", masterClockPhase, now, masterClockValue ? "RISE" : "FALL", i);
+        //if(masterClockEdge) printf("MCLK  %lf %lf %s %d\n", masterClockPhase, now, masterClockValue ? "RISE" : "FALL", i);
 
         double clockPhaseCount[maxClockCount];
         double clockPhase[maxClockCount];
@@ -319,11 +319,13 @@ void BeatGen::processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::Mi
 
         if(latchClockEdge) {
             if(latchClockValue) {
-                int note = (int)_note.value();
-                _lastNote = note;
-                printf("ON    %lf %lf %lf\n", phase, now, now - _lastNoteOnTime);
-                midi.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)110), i);
-                _lastNoteOnTime = now;
+                if(enabled) {
+                    int note = (int)_note.value();
+                    _lastNote = note;
+                    //printf("ON    %lf %lf %lf\n", phase, now, now - _lastNoteOnTime);
+                    midi.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)110), i);
+                    _lastNoteOnTime = now;
+                }
             } else {
                 //printf("OFF   %lf %lf\n", phase, now);
                 midi.addEvent(juce::MidiMessage::noteOff(1, _lastNote), i);
