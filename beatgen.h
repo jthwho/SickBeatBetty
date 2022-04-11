@@ -142,6 +142,7 @@ class BeatGen {
         ParamValue                  _clockEnabled[maxClockCount];
         ParamValue                  _clockRate[maxClockCount];
         ParamValue                  _clockPhaseOffset[maxClockCount];
+        ParamValue                  _clockMixMode[maxClockCount];
 
         void updateBeats();
 

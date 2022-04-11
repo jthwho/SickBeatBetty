@@ -1,5 +1,7 @@
 #include "beatgen.h"
 
+typedef std::vector<bool>   BoolVector;
+
 #define PARAM_PREFIX    "beatgen"
 
 static const char wholeNoteName[] = "CDEFGAB";
@@ -84,6 +86,49 @@ static int stringToMidiNote(const juce::String &val) {
     return note;
 }
 
+BoolVector generateEuclidBeat(int count, int total, int off = 0) {
+        BoolVector ret;
+        ret.assign(total, false);
+        int bucket = 0;
+        int offset = off + 1;
+        for(int x = 0; x < total; x++) {
+                bucket += count;
+                if(bucket >= total) {
+                        bucket -= total;
+                        ret[(x + offset) % total] = true;
+                }
+        }
+        return ret;
+}
+
+BoolVector mixBeats(const BoolVector &b1, const BoolVector &b2, int mode) {
+        BoolVector ret;
+        size_t total = b1.size();
+        if(b2.size() != total) return ret;
+        ret.assign(total, false);
+        for(int x = 0; x < total; x++) {
+                bool v1 = b1[x];
+                bool v2 = b2[x];
+                bool v = false;
+                switch(mode) {
+                        default:
+                        case 0:  v = v1 && v2; break;
+                        case 1:  v = v1 || v2; break;
+                        case 2:  v = v1 != v2; break;
+                        case 3:  v = !(v1 && v2); break;
+                        case 4:  v = !(v1 || v2); break;
+                        case 5:  v = !(v1 != v2); break;
+                        case 6:  v = !v1 && v2; break;
+                        case 7:  v = !v1 || v2; break;
+                        case 8:  v = !v1 != v2; break;
+                        case 9:  v = v1 && !v2; break;
+                        case 10: v = v1 || !v2; break;
+                        case 11: v = v1 != !v2; break;
+                }
+                ret[x] = v;
+        }
+        return ret;
+}
 
 int BeatGen::nextIndex() {
     static int index = 0;
@@ -145,7 +190,7 @@ BeatGen::BeatGen() :
     _bars.setup(
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_bars", _index),
-        juce::String::formatted(PARAM_PREFIX "G%d Bars", _index + 1),
+        juce::String::formatted("G%d Bars", _index + 1),
         [](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(),
@@ -191,11 +236,26 @@ BeatGen::BeatGen() :
             [](const ParamValue &p) {
                 return std::make_unique<juce::AudioParameterFloat>(
                     p.id(), p.name(),
-                    -1.0f, 1.0f, 0.0f
+                    0.0f, 1.0f, 0.0f
                 );
             },
             i
         );
+
+        _clockMixMode[i].setup(
+            _params,
+            juce::String::formatted(PARAM_PREFIX "%d_clock%d_mix_mode", _index, i),
+            juce::String::formatted("G%d Clock %d Mix Mode", _index + 1, i + 1),
+            [](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterInt>(
+                    p.id(), p.name(),
+                    0, 11, 0,
+                    juce::String()
+                );
+            },
+            i
+        );
+
     }
 }
 
@@ -235,12 +295,25 @@ static double phaseShiftAndMultiply(double inputPhase, double offset, double mul
 }
 
 void BeatGen::updateBeats() {
+    int steps = _mclockRate.valueInt();
     _beats.clear();
-    int steps = 16;
+    BoolVector clock[maxClockCount];
+    BoolVector beatClock;
+    beatClock.assign(steps, true); // Start with all the beats turned on.
+    for(int i = 0; i < maxClockCount; i++) {
+        bool enabled = _clockEnabled[i].valueBool();
+        if(enabled) {
+            int rate = _clockRate[i].valueInt();
+            int offset = (int)(_clockPhaseOffset[i].value() * (double)steps);
+            int mode = _clockMixMode[i].valueInt();
+            clock[i] = generateEuclidBeat(rate, steps, offset);
+            beatClock = mixBeats(beatClock, clock[i], mode);
+        }
+    }
     for(int i = 0; i < steps; i++) {
         Beat beat;
         beat.start = (double)i / (double)steps;
-        beat.velocity = (i % 4 == 0) ? 0.9 : 0.0;
+        beat.velocity = beatClock[i] ? 1.0 : 0.0;
         printf("G%d beat %d @ %lf - %lf\n", _index, i, beat.start, beat.velocity);
         _beats.push_back(beat);
     }
@@ -248,6 +321,7 @@ void BeatGen::updateBeats() {
 }
 
 void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
+    updateBeats(); // FIXME: We only need to do this if there has been a change.
     // Check all the beats and schedule the ones that occur during this generate period.
     int startPhase = (int)state.start;
     int endPhase = (int)state.end;
@@ -263,7 +337,7 @@ void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
                     _lastNote = -1;
                 }
                 if(enabled && i.velocity > 0.0) {
-                    printf("G%d N%d %lf %lf %lf %lf %lf\n", _index, note, i.velocity, i.start, start, state.start, state.end);
+                    //printf("G%d N%d %lf %lf %lf %lf %lf\n", _index, note, i.velocity, i.start, start, state.start, state.end);
                     midi.addEvent(juce::MidiMessage::noteOn(1, note, (float)i.velocity), offset);
                     _lastNote = note;
                 }
