@@ -84,6 +84,7 @@ static int stringToMidiNote(const juce::String &val) {
     return note;
 }
 
+
 int BeatGen::nextIndex() {
     static int index = 0;
     return index++;
@@ -221,23 +222,9 @@ void BeatGen::attachParams(juce::AudioProcessorValueTreeState &params) {
     return;
 }
 
-void BeatGen::reset(double sampleRate) {
-    _sampleRate = sampleRate;
-    reset();
-    updateBeats();
-    return;
-}
-
 void BeatGen::reset() {
-    printf("RESET %d %f\n", _currentTime, _sampleRate);
-    _started = false;
-    _currentTime = 0;
-    _lastNoteOnTime = 0.0;
-    _masterClockValue = false;
-    for(int i = 0; i < maxClockCount; i++) {
-        _clockValue[i] = false;
-        _clockLatch[i].reset();
-    }
+    updateBeats();
+    _lastNote = -1;
     return;
 }
 
@@ -250,25 +237,12 @@ static double phaseShiftAndMultiply(double inputPhase, double offset, double mul
 void BeatGen::updateBeats() {
     _beats.clear();
     int steps = 16;
-    int genSteps = steps * 4;
-    int note = (int)_note.value();
-    for(int i = 0; i < genSteps; i++) {
+    for(int i = 0; i < steps; i++) {
         Beat beat;
-        beat.note = note;
-        beat.on = true;
         beat.start = (double)i / (double)steps;
-        if(i % 4 == 0) beat.velocity = 0.9;
-        if(beat.velocity > 0.0) {
-            printf("G%d beat @ %lf - %lf\n", _index, beat.start, beat.velocity);
-            _beats.push_back(beat);
-
-            Beat off = beat;
-            off.on = false;
-            off.velocity = 0.0;
-            off.start += 0.125;
-            _beats.push_back(off);
-
-        }
+        beat.velocity = (i % 4 == 0) ? 0.9 : 0.0;
+        printf("G%d beat %d @ %lf - %lf\n", _index, i, beat.start, beat.velocity);
+        _beats.push_back(beat);
     }
     return;
 }
@@ -276,15 +250,24 @@ void BeatGen::updateBeats() {
 void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
     // Check all the beats and schedule the ones that occur during this generate period.
     int startPhase = (int)state.start;
-    for(auto &i : _beats) {
-        double start = (double)startPhase + i.start;
-        if(start >= state.start && start < state.end) {
+    int endPhase = (int)state.end;
+    bool enabled = state.enabled && _enabled.valueBool();
+    int note = _note.valueInt();
+    for(int phase = startPhase; phase <= endPhase; phase++) {
+        for (auto &i : _beats) {
+            double start = (double)phase + i.start;
             int offset = (int)round((start - state.start) / state.stepSize);
-            if(i.on) {
-                midi.addEvent(juce::MidiMessage::noteOn(1, i.note, (float)i.velocity), offset);
-            } else {
-                midi.addEvent(juce::MidiMessage::noteOff(1, i.note), offset);
-            } 
+            if(start >= state.start && start < state.end) {
+                if(_lastNote >= 0) {
+                    midi.addEvent(juce::MidiMessage::noteOff(1, _lastNote), offset);
+                    _lastNote = -1;
+                }
+                if(enabled && i.velocity > 0.0) {
+                    printf("G%d N%d %lf %lf %lf %lf %lf\n", _index, note, i.velocity, i.start, start, state.start, state.end);
+                    midi.addEvent(juce::MidiMessage::noteOn(1, note, (float)i.velocity), offset);
+                    _lastNote = note;
+                }
+            }
         }
     }
     return;

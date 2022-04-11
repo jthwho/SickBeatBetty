@@ -89,7 +89,7 @@ void PluginProcessor::changeProgramName(int index, const juce::String& newName) 
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::ignoreUnused(samplesPerBlock);
     _sampleRate = sampleRate;
-    for(auto &i : _beatGen) i.reset(sampleRate);
+    for(auto &i : _beatGen) i.reset();
     return;
 }
 
@@ -113,7 +113,6 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
         bpm = pos.bpm;
         transportRunning = pos.isPlaying || pos.isRecording;
         _now = pos.timeInSeconds;
-
     } else if(_bpm != nullptr) {
         // If we've got a _bpm parameter, we're running standalone
         bpm = *_bpm;
@@ -124,6 +123,10 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     if(transportRunning != _transportRunning) {
         printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
         if(transportRunning) {
+            //if(ph != nullptr) {
+            //    _now = pos.timeInSeconds;
+            //    printf("Reset position to %lf from transport\n", _now);
+            //}
             for(auto &i : _beatGen) i.reset();
         } else {
             _now = 0.0;
@@ -135,14 +138,14 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     double steps = (double)audio.getNumSamples();
     double genLen = steps / _sampleRate;
     double phaseLen = 60.0 / bpm * 4.0;
+    genState.enabled = transportRunning;
     genState.stepSize = 1.0 / _sampleRate;
     genState.start = _now / phaseLen;
     genState.end = (_now + genLen) / phaseLen;
     
-    printf("Gen %lf %lf %lf %d\n", _now, genState.start, genState.end, audio.getNumSamples());
-    if(!transportRunning) return;
-    for(auto &i : _beatGen) i.generate(genState, midi);
-
+    if(transportRunning) {
+        for(auto &i : _beatGen) i.generate(genState, midi);
+    }
     _now += genLen;
     return;
 }

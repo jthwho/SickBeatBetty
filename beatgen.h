@@ -70,6 +70,8 @@ class ParamValue {
         juce::String name() const { return _name; }
         int index() const { return _index; }
         float value() const { return *_value; }
+        bool valueBool() const { return *_value >= 0.5; }
+        int valueInt() const { return (int)*_value; }
 
     protected:
         void setup(PtrList &list, const juce::String &id, const juce::String &name, RangedAudioParamFunc func, int index = 0) {
@@ -93,14 +95,13 @@ class ParamValue {
 class BeatGen {
     public:
         struct GenerateState {
-            double  start = { 0.0 };      // Start of generate window in phase units
-            double  end = { 0.0 };        // End of generate window in phase units
-            double  stepSize = { 0.0 };   // Step size in phase units.
+            bool    enabled = true;
+            double  start = 0.0;      // Start of generate window in phase units
+            double  end = 0.0;        // End of generate window in phase units
+            double  stepSize = 0.0;   // Step size in phase units.
         };
 
         struct Beat {
-            int     note = 0;
-            bool    on = true;
             double  start = 0.0;
             double  velocity = 0.0;
         };
@@ -127,16 +128,8 @@ class BeatGen {
         //void processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
 
     private:
-        int                 _index { 0 };
-        bool                _started { false };
-        double              _sampleRate { 48000.0 };
-        int                 _currentTime { 0 };
-        bool                _masterClockValue { false };
-        bool                _clockValue[maxClockCount] { false };
-        Latch               _clockLatch[maxClockCount];
-        int                 _lastNote { 0 };
-        double              _lastNoteOnTime { 0.0 };
-        double              _bpm = 120.0;
+        int                 _index = 0;
+        int                 _lastNote = -1;
         std::vector<Beat>   _beats;
 
         // Parameters
