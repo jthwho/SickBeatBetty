@@ -92,7 +92,7 @@ class ParamValue {
         std::atomic<float>      *_value = nullptr;
 };
 
-class BeatGen {
+class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
     public:
         struct GenerateState {
             bool    enabled = true;
@@ -125,12 +125,13 @@ class BeatGen {
         void reset();
         void generate(const GenerateState &state, juce::MidiBuffer &midi);
 
-        //void processBlock(double bpm, juce::AudioBuffer<float> &audio, juce::MidiBuffer &midi);
+        void parameterChanged(const juce::String &parameterID, float newValue);
 
     private:
         int                 _index = 0;
         int                 _lastNote = -1;
         std::vector<Beat>   _beats;
+        std::atomic<bool>   _needsUpdate = false;
 
         // Parameters
         ParamValue::PtrList         _params;
@@ -139,11 +140,14 @@ class BeatGen {
         ParamValue                  _mclockRate;
         ParamValue                  _mclockPhaseOffset;
         ParamValue                  _bars;
+        ParamValue                  _level;
         ParamValue                  _clockEnabled[maxClockCount];
         ParamValue                  _clockRate[maxClockCount];
         ParamValue                  _clockPhaseOffset[maxClockCount];
         ParamValue                  _clockMixMode[maxClockCount];
-
+        ParamValue                  _clockLevel[maxClockCount];
+        
+        double levelAtPhase(double phase) const;
         void updateBeats();
 
         static int nextIndex(); // FIXME: This is lame.

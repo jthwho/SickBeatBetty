@@ -162,6 +162,18 @@ BeatGen::BeatGen() :
         }
     );
     
+    _level.setup(
+        _params,
+        juce::String::formatted(PARAM_PREFIX "%d_level", _index),
+        juce::String::formatted("G%d Level", _index + 1),
+        [](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterFloat>(
+                    p.id(), p.name(),
+                    -1.0f, 1.0f, 1.0f
+                );
+        }
+    );
+
     _mclockRate.setup(
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_mclock_rate", _index),
@@ -174,7 +186,7 @@ BeatGen::BeatGen() :
             );
         }
     );
-
+    
     _mclockPhaseOffset.setup(
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_mclock_phase_offset", _index),
@@ -204,7 +216,7 @@ BeatGen::BeatGen() :
         _clockEnabled[i].setup(
             _params,
             juce::String::formatted(PARAM_PREFIX "%d_clock%d_enabled", _index, i),
-            juce::String::formatted("G%d Clock %d Enabled", _index + 1, i + 1),
+            juce::String::formatted("G%d Clock %d Euclid Enable", _index + 1, i + 1),
             [](const ParamValue &p) {
                 return std::make_unique<juce::AudioParameterBool>(
                     p.id(), p.name(),
@@ -215,6 +227,18 @@ BeatGen::BeatGen() :
             i
         );
         
+        _clockLevel[i].setup(
+            _params,
+            juce::String::formatted(PARAM_PREFIX "%d_clock%d_level", _index, i),
+            juce::String::formatted("G%d Clock %d Level", _index + 1, i),
+            [](const ParamValue &p) {
+                    return std::make_unique<juce::AudioParameterFloat>(
+                        p.id(), p.name(),
+                        -1.0f, 1.0f, 0.0f
+                    );
+            }
+        );
+
         _clockRate[i].setup(
             _params,
             juce::String::formatted(PARAM_PREFIX "%d_clock%d_rate", _index, i),
@@ -263,6 +287,12 @@ BeatGen::~BeatGen() {
 
 }
 
+void BeatGen::parameterChanged(const juce::String &parameterID, float newValue) {
+    juce::ignoreUnused(parameterID, newValue);
+    _needsUpdate = true;
+    return;
+}
+
 std::unique_ptr<juce::AudioProcessorParameterGroup> BeatGen::createParameterLayout() const {
     auto group = std::make_unique<juce::AudioProcessorParameterGroup>(
         juce::String::formatted(PARAM_PREFIX "%d", _index),
@@ -278,6 +308,7 @@ std::unique_ptr<juce::AudioProcessorParameterGroup> BeatGen::createParameterLayo
 void BeatGen::attachParams(juce::AudioProcessorValueTreeState &params) {
     for(auto i : _params) {
         jassert(i->attach(params));
+        params.addParameterListener(i->id(), this);
     }
     return;
 }
@@ -288,9 +319,22 @@ void BeatGen::reset() {
     return;
 }
 
-static double phaseShiftAndMultiply(double inputPhase, double offset, double multiply, double &phaseCount) {
-    double ret = modf(abs(inputPhase + offset + 1.0), &phaseCount);
-    ret = modf(ret * multiply, &phaseCount);
+static double phaseMultiplyAndShift(double inputPhase, double multiply, double shift, double &phaseCount) {
+    double ret = modf(inputPhase * multiply, &phaseCount);
+    ret = modf(abs(ret + shift + 1.0), &phaseCount);
+    return ret;
+}
+
+double BeatGen::levelAtPhase(double phase) const {
+    double ret = _level.value();
+    for(int i = 0; i < maxClockCount; i++) {
+        double phaseCount;
+        double clockLevel = phaseMultiplyAndShift(phase, _clockRate[i].value(), _clockPhaseOffset[i].value(), phaseCount);
+        clockLevel *= _clockLevel[i].value();
+        ret += clockLevel;
+    }
+    if(ret > 1.0) ret = 1.0;
+    else if(ret < 0.0) ret = 0.0;
     return ret;
 }
 
@@ -313,15 +357,17 @@ void BeatGen::updateBeats() {
     for(int i = 0; i < steps; i++) {
         Beat beat;
         beat.start = (double)i / (double)steps;
-        beat.velocity = beatClock[i] ? 1.0 : 0.0;
-        printf("G%d beat %d @ %lf - %lf\n", _index, i, beat.start, beat.velocity);
+        beat.velocity = beatClock[i] ? levelAtPhase(beat.start) : 0.0;
         _beats.push_back(beat);
     }
     return;
 }
 
 void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
-    updateBeats(); // FIXME: We only need to do this if there has been a change.
+    if(_needsUpdate) {
+        _needsUpdate = false;
+        updateBeats();
+    }
     // Check all the beats and schedule the ones that occur during this generate period.
     int startPhase = (int)state.start;
     int endPhase = (int)state.end;
