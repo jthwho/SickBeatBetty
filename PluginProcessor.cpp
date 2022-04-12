@@ -135,8 +135,8 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     genState.end = (_now + qnPerBlock) / qnPerBar;
     genState.stepSize = qnPerSample / qnPerBar;
     
-    printf("%lf bpm, %d samples, %lf qnPerSample, %lf start, %lf end\n",
-        bpm, audio.getNumSamples(), qnPerSample, genState.start, genState.end); 
+    //printf("%lf bpm, %d samples, %lf qnPerSample, %lf start, %lf end\n",
+    //    bpm, audio.getNumSamples(), qnPerSample, genState.start, genState.end); 
 
     if(transportRunning) {
         for(auto &i : _beatGen) i.generate(genState, midi);
