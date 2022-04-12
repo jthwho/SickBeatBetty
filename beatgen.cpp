@@ -174,10 +174,10 @@ BeatGen::BeatGen() :
         }
     );
 
-    _mclockRate.setup(
+    _steps.setup(
         _params,
-        juce::String::formatted(PARAM_PREFIX "%d_mclock_rate", _index),
-        juce::String::formatted("G%d Master Clock Rate", _index + 1),
+        juce::String::formatted(PARAM_PREFIX "%d_steps", _index),
+        juce::String::formatted("G%d Steps", _index + 1),
         [](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(), 
@@ -187,14 +187,14 @@ BeatGen::BeatGen() :
         }
     );
     
-    _mclockPhaseOffset.setup(
+    _phaseOffset.setup(
         _params,
-        juce::String::formatted(PARAM_PREFIX "%d_mclock_phase_offset", _index),
-        juce::String::formatted("G%d Master Clock Phase Offset", _index + 1),
+        juce::String::formatted(PARAM_PREFIX "%d_phase_offset", _index),
+        juce::String::formatted("G%d Phase Offset", _index + 1),
         [](const ParamValue &p) {
                 return std::make_unique<juce::AudioParameterFloat>(
                     p.id(), p.name(),
-                    -1.0f, 1.0f, 0.0f
+                    0.0f, 1.0f, 0.0f
                 );
         }
     );
@@ -333,7 +333,7 @@ double BeatGen::levelAtPhase(double phase) const {
 }
 
 void BeatGen::updateBeats() {
-    int steps = _mclockRate.valueInt();
+    int steps = _steps.valueInt();
     _beats.clear();
     BoolVector clock[maxClockCount];
     BoolVector beatClock;
@@ -366,10 +366,11 @@ void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
     int startPhase = (int)state.start;
     int endPhase = (int)state.end;
     bool enabled = state.enabled && _enabled.valueBool();
+    double phaseOffset = _phaseOffset.value();
     int note = _note.valueInt();
     for(int phase = startPhase; phase <= endPhase; phase++) {
         for (auto &i : _beats) {
-            double start = (double)phase + i.start;
+            double start = (double)phase + fmod(i.start + phaseOffset, 1.0);
             if(start >= state.start && start < state.end) {
                 if(_lastNote >= 0) {
                     int offset = (int)floor((start - state.start) / state.stepSize);

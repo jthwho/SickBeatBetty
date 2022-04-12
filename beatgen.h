@@ -133,8 +133,8 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         ParamValue::PtrList         _params;
         ParamValue                  _enabled;
         ParamValue                  _note;
-        ParamValue                  _mclockRate;
-        ParamValue                  _mclockPhaseOffset;
+        ParamValue                  _steps;
+        ParamValue                  _phaseOffset;
         ParamValue                  _bars;
         ParamValue                  _level;
         ParamValue                  _clockEnabled[maxClockCount];
