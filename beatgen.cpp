@@ -230,7 +230,7 @@ BeatGen::BeatGen() :
         _clockLevel[i].setup(
             _params,
             juce::String::formatted(PARAM_PREFIX "%d_clock%d_level", _index, i),
-            juce::String::formatted("G%d Clock %d Level", _index + 1, i),
+            juce::String::formatted("G%d Clock %d Level", _index + 1, i + 1),
             [](const ParamValue &p) {
                     return std::make_unique<juce::AudioParameterFloat>(
                         p.id(), p.name(),
@@ -313,12 +313,6 @@ void BeatGen::attachParams(juce::AudioProcessorValueTreeState &params) {
     return;
 }
 
-void BeatGen::reset() {
-    updateBeats();
-    _lastNote = -1;
-    return;
-}
-
 static double phaseMultiplyAndShift(double inputPhase, double multiply, double shift, double &phaseCount) {
     double ret = modf(inputPhase * multiply, &phaseCount);
     ret = modf(abs(ret + shift + 1.0), &phaseCount);
@@ -376,14 +370,15 @@ void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
     for(int phase = startPhase; phase <= endPhase; phase++) {
         for (auto &i : _beats) {
             double start = (double)phase + i.start;
-            int offset = (int)round((start - state.start) / state.stepSize);
             if(start >= state.start && start < state.end) {
                 if(_lastNote >= 0) {
+                    int offset = (int)floor((start - state.start) / state.stepSize);
                     midi.addEvent(juce::MidiMessage::noteOff(1, _lastNote), offset);
                     _lastNote = -1;
                 }
                 if(enabled && i.velocity > 0.0) {
                     //printf("G%d N%d %lf %lf %lf %lf %lf\n", _index, note, i.velocity, i.start, start, state.start, state.end);
+                    int offset = (int)ceil((start - state.start) / state.stepSize);
                     midi.addEvent(juce::MidiMessage::noteOn(1, note, (float)i.velocity), offset);
                     _lastNote = note;
                 }

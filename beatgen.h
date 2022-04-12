@@ -96,9 +96,9 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
     public:
         struct GenerateState {
             bool    enabled = true;
-            double  start = 0.0;      // Start of generate window in phase units
-            double  end = 0.0;        // End of generate window in phase units
-            double  stepSize = 0.0;   // Step size in phase units.
+            double  start = 0.0;      // Start of generate window in bar units
+            double  end = 0.0;        // End of generate window in bar units
+            double  stepSize = 0.0;   // Step size in bar units.
         };
 
         struct Beat {
@@ -120,11 +120,7 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         
         // Must be called after we create a parameter layout.
         void attachParams(juce::AudioProcessorValueTreeState &params);
-
-        void reset(double sampleRate);
-        void reset();
         void generate(const GenerateState &state, juce::MidiBuffer &midi);
-
         void parameterChanged(const juce::String &parameterID, float newValue);
 
     private:

@@ -89,7 +89,6 @@ void PluginProcessor::changeProgramName(int index, const juce::String& newName) 
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::ignoreUnused(samplesPerBlock);
     _sampleRate = sampleRate;
-    for(auto &i : _beatGen) i.reset();
     return;
 }
 
@@ -111,42 +110,38 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
         // If we've got a playhead, we're running as a plugin
         ph->getCurrentPosition(pos);
         bpm = pos.bpm;
-        transportRunning = pos.isPlaying || pos.isRecording;
-        _now = pos.timeInSeconds;
+        transportRunning = pos.isPlaying;
+        _now = pos.ppqPosition;
     } else if(_bpm != nullptr) {
         // If we've got a _bpm parameter, we're running standalone
         bpm = *_bpm;
         transportRunning = true;
     }
 
-    // Check for a transport state change.
+ 
+
     if(transportRunning != _transportRunning) {
         printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
-        if(transportRunning) {
-            //if(ph != nullptr) {
-            //    _now = pos.timeInSeconds;
-            //    printf("Reset position to %lf from transport\n", _now);
-            //}
-            for(auto &i : _beatGen) i.reset();
-        } else {
-            _now = 0.0;
-        }
         _transportRunning = transportRunning;
     }
 
     BeatGen::GenerateState genState;
-    double steps = (double)audio.getNumSamples();
-    double genLen = steps / _sampleRate;
-    double phaseLen = 60.0 / bpm * 4.0;
+    double qnPerBar = 4.0; // FIXME: We should probably read the time signature here?
+    double qnPerSample = bpm / 60.0 / _sampleRate; // Quarter notes per sample (going to be a small fraction of a quarter note)
+    double samplesPerBlock = (double)audio.getNumSamples();
+    double qnPerBlock = qnPerSample * samplesPerBlock;
     genState.enabled = transportRunning;
-    genState.stepSize = 1.0 / _sampleRate;
-    genState.start = _now / phaseLen;
-    genState.end = (_now + genLen) / phaseLen;
+    genState.start = _now / qnPerBar; 
+    genState.end = (_now + qnPerBlock) / qnPerBar;
+    genState.stepSize = qnPerSample / qnPerBar;
     
+    printf("%lf bpm, %d samples, %lf qnPerSample, %lf start, %lf end\n",
+        bpm, audio.getNumSamples(), qnPerSample, genState.start, genState.end); 
+
     if(transportRunning) {
         for(auto &i : _beatGen) i.generate(genState, midi);
     }
-    _now += genLen;
+    _now += qnPerBlock;
     return;
 }
 
