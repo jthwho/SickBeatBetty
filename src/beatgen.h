@@ -46,8 +46,8 @@ class Latch {
         bool _latched;
 };
 
+// Data class to link all the different ways a parameter might be accessed.
 class ParamValue {
-    friend class BeatGen; // FIXME: Move this into the generic version of what we finally inherit BeatGen from
     public:
         typedef std::vector<ParamValue *> PtrList;
         typedef std::unique_ptr<juce::RangedAudioParameter> RangedAudioParamUniq;
@@ -59,41 +59,60 @@ class ParamValue {
 
         bool attach(const juce::AudioProcessorValueTreeState &state) {
             _value = state.getRawParameterValue(_id);
+            _param = state.getParameter(_id);
             return _value != nullptr;
+        }
+
+        void setup(PtrList &list, const juce::String &id, const juce::String &name, RangedAudioParamFunc func, int moduleID, int index = 0) {
+            jassert(_id.isEmpty()); // Make sure setup isn't called twice.
+            _id = id;
+            _name = name;
+            _func = func;
+            _moduleID = moduleID;
+            _index = index;
+            list.push_back(this);
+            return;
         }
 
         RangedAudioParamUniq layout() const {
             return _func(*this);
         }
 
+        int moduleID() const { return _moduleID; }
         juce::String id() const { return _id; }
         juce::String name() const { return _name; }
+        juce::RangedAudioParameter *param() const { return _param; }
         int index() const { return _index; }
         float value() const { return *_value; }
         bool valueBool() const { return *_value >= 0.5; }
         int valueInt() const { return (int)*_value; }
 
-    protected:
-        void setup(PtrList &list, const juce::String &id, const juce::String &name, RangedAudioParamFunc func, int index = 0) {
-            jassert(_id.isEmpty()); // Make sure setup isn't called twice.
-            _id = id;
-            _name = name;
-            _func = func;
-            _index = index;
-            list.push_back(this);
-            return;
-        }
-
     private:
-        juce::String            _id;
-        juce::String            _name;
-        RangedAudioParamFunc    _func = nullptr;
-        int                     _index = 0;
-        std::atomic<float>      *_value = nullptr;
+        juce::String                _id;
+        juce::String                _name;
+        RangedAudioParamFunc        _func = nullptr;
+        int                         _moduleID = 0;
+        int                         _index = 0;
+        std::atomic<float>          *_value = nullptr;
+        juce::RangedAudioParameter  *_param = nullptr;
 };
 
 class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
     public:
+        enum ParamID {
+            ParamEnabled            = 1,
+            ParamNote               = 2,
+            ParamSteps              = 3,
+            ParamPhaseOffset        = 4,
+            ParamBars               = 5,
+            ParamLevel              = 6,
+            ParamClockEnabled       = 7,
+            ParamClockRate          = 8,
+            ParamClockPhaseOffset   = 9,
+            ParamClockMixMode       = 10,
+            ParamClockLevel         = 11
+        };
+        
         struct GenerateState {
             bool    enabled = true;
             double  start = 0.0;      // Start of generate window in bar units
@@ -116,6 +135,8 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
 
         int index() const;
 
+        const ParamValue *getParameter(int id, int index = 0) const;
+
         std::unique_ptr<juce::AudioProcessorParameterGroup> createParameterLayout() const;
         
         // Must be called after we create a parameter layout.
@@ -124,11 +145,11 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         void parameterChanged(const juce::String &parameterID, float newValue);
 
     private:
-        int                 _index = 0;
-        int                 _lastNote = -1;
-        std::vector<Beat>   _beats;
-        std::atomic<bool>   _needsUpdate = false;
-
+        int                                     _index = 0;
+        int                                     _lastNote = -1;
+        std::vector<Beat>                       _beats;
+        std::atomic<bool>                       _needsUpdate = false;
+    
         // Parameters
         ParamValue::PtrList         _params;
         ParamValue                  _enabled;

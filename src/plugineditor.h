@@ -1,25 +1,19 @@
 #pragma once
 
-#include "PluginProcessor.h"
+#include "pluginprocessor.h"
+#include "beatgenclockui.h"
 
 class PluginEditor  : public juce::AudioProcessorEditor {
     public:
-        explicit PluginEditor(PluginProcessor &proc, juce::AudioProcessorValueTreeState &params);
+        explicit PluginEditor(PluginProcessor &proc);
         ~PluginEditor() override;
 
-    
         void paint(juce::Graphics &) override;
         void resized() override;
 
     private:
-        typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
-        typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
-
         PluginProcessor                     &_proc;
-        juce::AudioProcessorValueTreeState  &_params;
-        juce::Label                         _labelLevel;
-        juce::Slider                        _sliderLevel;
-        std::unique_ptr<SliderAttachment>   _attachLevel;
+        BeatGenClockUI                      _clockUI;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

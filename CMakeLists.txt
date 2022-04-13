@@ -23,6 +23,8 @@ target_sources(SickBeatBetty
         src/plugineditor.cpp
         src/pluginprocessor.cpp
         src/beatgen.cpp
+        src/beatgenclockui.cpp
+        src/paramslider.cpp
 )
 
 target_compile_definitions(SickBeatBetty

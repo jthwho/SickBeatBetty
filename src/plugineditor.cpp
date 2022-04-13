@@ -1,16 +1,12 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-PluginEditor::PluginEditor(PluginProcessor &proc, juce::AudioProcessorValueTreeState &params) : 
+PluginEditor::PluginEditor(PluginProcessor &proc) : 
     AudioProcessorEditor(&proc), 
     _proc(proc),
-    _params(params)
+    _clockUI(proc.beatGen(0), 0)
 {
-    _labelLevel.setText("Level", juce::dontSendNotification);
-    addAndMakeVisible(&_labelLevel); 
-    addAndMakeVisible(&_sliderLevel);
-    _attachLevel.reset(new SliderAttachment(_params, "level", _sliderLevel));
-
+    addAndMakeVisible(_clockUI);
     setSize(400, 400);
 }
 
@@ -19,16 +15,15 @@ PluginEditor::~PluginEditor() {
 }
 
 void PluginEditor::paint(juce::Graphics &g) {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll(juce::Colours::azure);
     return;
 }
 
 void PluginEditor::resized() {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    // Mini-rant: The manual nature of the JUCE layout sucks.  Sure wish there was something
+    // like QLayout from Qt for this.  
+    // TODO: Reinvent QLayout for the JUCE world.
     auto r = getLocalBounds();
-    auto gainRect = r.removeFromTop(40);
-    _labelLevel.setBounds(gainRect.removeFromLeft(80));
-    _sliderLevel.setBounds(gainRect);
+    _clockUI.setBounds(r);
     return;
 }

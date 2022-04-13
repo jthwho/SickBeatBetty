@@ -1,5 +1,6 @@
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+
+#include "pluginprocessor.h"
+#include "plugineditor.h"
 
 PluginProcessor::PluginProcessor() : 
     AudioProcessor(
@@ -150,7 +151,8 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 }
 
 juce::AudioProcessorEditor * PluginProcessor::createEditor() {
-    //return new PluginEditor(*this, _params);
+    // Uncomment and comment the other one to test our custom GUI.
+    //return new PluginEditor(*this);
     return new juce::GenericAudioProcessorEditor(*this);
 }
 

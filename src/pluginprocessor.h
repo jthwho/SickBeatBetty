@@ -37,6 +37,9 @@ class PluginProcessor  : public juce::AudioProcessor {
         void getStateInformation(juce::MemoryBlock &destData) override;
         void setStateInformation (const void *data, int sizeInBytes) override;
 
+        BeatGen &beatGen(int index);
+        const BeatGen &beatGen(int index) const;
+
     private:
         // Order here maters.  There are init dependency on each other.
         BeatGen                                                 _beatGen[beatGenCount];
@@ -49,3 +52,11 @@ class PluginProcessor  : public juce::AudioProcessor {
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };
+
+inline BeatGen &PluginProcessor::beatGen(int index) {
+    return _beatGen[index];
+}
+
+inline const BeatGen &PluginProcessor::beatGen(int index) const {
+    return _beatGen[index];
+}

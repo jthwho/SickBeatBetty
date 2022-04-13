@@ -144,7 +144,8 @@ BeatGen::BeatGen() :
         juce::String::formatted("G%d Enabled", _index + 1), 
         [](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterBool>(p.id(), p.name(), false);
-        }
+        },
+        ParamEnabled
     );
     
     _note.setup(
@@ -159,7 +160,8 @@ BeatGen::BeatGen() :
                 &midiNoteToString,
                 &stringToMidiNote
             );
-        }
+        },
+        ParamNote
     );
     
     _level.setup(
@@ -171,7 +173,8 @@ BeatGen::BeatGen() :
                     p.id(), p.name(),
                     -1.0f, 1.0f, 1.0f
                 );
-        }
+        },
+        ParamLevel
     );
 
     _steps.setup(
@@ -184,7 +187,8 @@ BeatGen::BeatGen() :
                 1, maxClockRate, 16,
                 juce::String()
             );
-        }
+        },
+        ParamSteps
     );
     
     _phaseOffset.setup(
@@ -196,7 +200,8 @@ BeatGen::BeatGen() :
                     p.id(), p.name(),
                     0.0f, 1.0f, 0.0f
                 );
-        }
+        },
+        ParamPhaseOffset
     );
     
     _bars.setup(
@@ -209,7 +214,8 @@ BeatGen::BeatGen() :
                 1, maxBars, 1,
                 juce::String()
             );
-        }
+        },
+        ParamBars
     );
     
     for(int i = 0; i < maxClockCount; i++) {
@@ -224,6 +230,7 @@ BeatGen::BeatGen() :
                     juce::String()
                 );
             },
+            ParamClockEnabled,
             i
         );
         
@@ -236,7 +243,9 @@ BeatGen::BeatGen() :
                         p.id(), p.name(),
                         -1.0f, 1.0f, 0.0f
                     );
-            }
+            },
+            ParamClockLevel,
+            i
         );
 
         _clockRate[i].setup(
@@ -250,6 +259,7 @@ BeatGen::BeatGen() :
                     juce::String()
                 );
             },
+            ParamClockRate,
             i
         );
 
@@ -263,6 +273,7 @@ BeatGen::BeatGen() :
                     0.0f, 1.0f, 0.0f
                 );
             },
+            ParamClockPhaseOffset,
             i
         );
 
@@ -277,6 +288,7 @@ BeatGen::BeatGen() :
                     juce::String()
                 );
             },
+            ParamClockMixMode,
             i
         );
 
@@ -285,6 +297,16 @@ BeatGen::BeatGen() :
 
 BeatGen::~BeatGen() {
 
+}
+const ParamValue *BeatGen::getParameter(int id, int index) const {
+    ParamValue *ret = nullptr;
+    for(auto i : _params) {
+        if(i->moduleID() == id && i->index() == index) {
+            ret = i;
+            break;
+        }
+    }
+    return ret;
 }
 
 void BeatGen::parameterChanged(const juce::String &parameterID, float newValue) {
