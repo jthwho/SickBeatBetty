@@ -252,11 +252,19 @@ BeatGen::BeatGen() :
             _params,
             juce::String::formatted(PARAM_PREFIX "%d_clock%d_rate", _index, i),
             juce::String::formatted("G%d Clock %d Rate", _index + 1, i + 1),
-            [](const ParamValue &p) {
-                return std::make_unique<juce::AudioParameterInt>(
+            [this](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterFloat>(
                     p.id(), p.name(),
-                    1, maxClockRate, 4,
-                    juce::String()
+                    juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f,
+                    p.name(),
+                    juce::AudioProcessorParameter::genericParameter,
+                    [this](float value, int maxLen) {
+                        juce::ignoreUnused(maxLen); // FIXME?  Chop the returned string?
+                        return juce::String(this->clockRateFloatToInt(value));
+                    },
+                    [this](const juce::String &str) {
+                        return this->clockRateIntToFloat(str.getIntValue());
+                    }
                 );
             },
             ParamClockRate,
@@ -298,6 +306,20 @@ BeatGen::BeatGen() :
 BeatGen::~BeatGen() {
 
 }
+
+// Converts between the floating point 0.0 .. 1.0 value of the clockRate parameter
+// and the actual clock rate value (which is an integer).  The 0.0 .. 1.0 value
+// maps to the range 1 .. BeatGen Steps.
+int BeatGen::clockRateFloatToInt(float val) const {
+    juce::NormalisableRange<float> range(1, _steps.value(), 1.0);
+    return (int)range.convertFrom0to1(val);
+}
+
+float BeatGen::clockRateIntToFloat(int val) const {
+    juce::NormalisableRange<float> range(1, _steps.value(), 1.0);
+    return range.convertTo0to1((float)val);
+}
+
 const ParamValue *BeatGen::getParameter(int id, int index) const {
     ParamValue *ret = nullptr;
     for(auto i : _params) {
@@ -310,6 +332,11 @@ const ParamValue *BeatGen::getParameter(int id, int index) const {
 }
 
 void BeatGen::parameterChanged(const juce::String &parameterID, float newValue) {
+    if(parameterID == getParameter(ParamSteps)->id()) {
+        for(int i = 0; i < maxClockCount; i++) {
+            getParameter(ParamClockRate, i)->notifyHost();
+        }
+    }
     juce::ignoreUnused(parameterID, newValue);
     _needsUpdate = true;
     return;
@@ -345,7 +372,7 @@ double BeatGen::levelAtPhase(double phase) const {
     double ret = _level.value();
     for(int i = 0; i < maxClockCount; i++) {
         double phaseCount;
-        double clockLevel = phaseMultiplyAndShift(phase, _clockRate[i].value(), _clockPhaseOffset[i].value(), phaseCount);
+        double clockLevel = phaseMultiplyAndShift(phase, (double)clockRateFloatToInt(_clockRate[i].value()), _clockPhaseOffset[i].value(), phaseCount);
         clockLevel *= _clockLevel[i].value();
         ret += clockLevel;
     }
@@ -363,7 +390,7 @@ void BeatGen::updateBeats() {
     for(int i = 0; i < maxClockCount; i++) {
         bool enabled = _clockEnabled[i].valueBool();
         if(enabled) {
-            int rate = _clockRate[i].valueInt();
+            int rate = clockRateFloatToInt(_clockRate[i].value());
             int offset = (int)(_clockPhaseOffset[i].value() * (double)steps);
             int mode = _clockMixMode[i].valueInt();
             clock[i] = generateEuclidBeat(rate, steps, offset);

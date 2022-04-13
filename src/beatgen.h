@@ -78,6 +78,18 @@ class ParamValue {
             return _func(*this);
         }
 
+        void notifyHost() const {
+            // This is a really lame hack to ensure the new value doesn't
+            // match the previous value as there's no way to force an
+            // update if the new value matches the previous value.
+            float newValue = *_value + 0.000001f;
+            _param->sendValueChangedMessageToListeners(newValue);
+            _param->beginChangeGesture();
+            _param->setValueNotifyingHost(newValue);
+            _param->endChangeGesture();
+            return;
+        }
+
         int moduleID() const { return _moduleID; }
         juce::String id() const { return _id; }
         juce::String name() const { return _name; }
@@ -166,6 +178,10 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         
         double levelAtPhase(double phase) const;
         void updateBeats();
+
+        // Helper functions to map the clockRate floating point value to the clock rate integer value.
+        int clockRateFloatToInt(float val) const;
+        float clockRateIntToFloat(int value) const;
 
         static int nextIndex(); // FIXME: This is lame.
 };
