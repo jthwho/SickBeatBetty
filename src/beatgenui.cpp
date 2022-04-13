@@ -92,7 +92,7 @@ void BeatGenUI::resized() {
         Item(_labelBars), Item(_bars),
         Item(_labelPhaseOffset), Item(_phaseOffset)
     };
-    grid.performLayout(r.removeFromTop(TEXTBOX_HEIGHT * 5));    
+    grid.performLayout(r.removeFromTop(TEXTBOX_HEIGHT * grid.templateRows.size()));    
 
     grid = juce::Grid();
     grid.templateRows = { Track(Fr(1)) };

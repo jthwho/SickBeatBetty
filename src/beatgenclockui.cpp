@@ -21,38 +21,38 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
 
     _rateLabel.setText("Rate", juce::dontSendNotification);
     _rateLabel.setJustificationType(juce::Justification::centred);
-    _rateLabel.setTooltip("Total number of ticks in the generation period");
     addAndMakeVisible(_rateLabel);
 
     _rate.setTextBoxStyle(juce::Slider::TextBoxAbove, false, SLIDER_WIDTH_MIN, TEXTBOX_HEIGHT_MIN);
     _rate.setSliderStyle(juce::Slider::LinearVertical);
+    _rate.setTooltip("Total number of ticks in the generation period");
     addAndMakeVisible(_rate);
 
     _phaseOffsetLabel.setText("Phase", juce::dontSendNotification);
     _phaseOffsetLabel.setJustificationType(juce::Justification::centred);
-    _phaseOffsetLabel.setTooltip("Adjusts where the first tick starts within the generation period");
     addAndMakeVisible(_phaseOffsetLabel);
 
     _phaseOffset.setTextBoxStyle(juce::Slider::TextBoxAbove, false, SLIDER_WIDTH_MIN, TEXTBOX_HEIGHT_MIN);
     _phaseOffset.setSliderStyle(juce::Slider::LinearVertical);
+    _phaseOffset.setTooltip("Adjusts where the first tick starts within the generation period");
     addAndMakeVisible(_phaseOffset);
 
     _mixModeLabel.setText("Mix Mode", juce::dontSendNotification);
     _mixModeLabel.setJustificationType(juce::Justification::centred);
-    _mixModeLabel.setTooltip("When used for Euclidian generation, this is the mode used to mix with the previous clock");
     addAndMakeVisible(_mixModeLabel);
 
     _mixMode.setTextBoxStyle(juce::Slider::TextBoxAbove, false, SLIDER_WIDTH_MIN, TEXTBOX_HEIGHT_MIN);
     _mixMode.setSliderStyle(juce::Slider::LinearVertical);
+    _mixMode.setTooltip("When used for Euclidian generation, this is the mode used to mix with the previous clock");
     addAndMakeVisible(_mixMode);
 
     _levelLabel.setText("Level", juce::dontSendNotification);
     _levelLabel.setJustificationType(juce::Justification::centred);
-    _levelLabel.setTooltip("Amount this clock should contribute to the velocity of a beat");
     addAndMakeVisible(_levelLabel);
 
     _level.setTextBoxStyle(juce::Slider::TextBoxAbove, false, SLIDER_WIDTH_MIN, TEXTBOX_HEIGHT_MIN);
     _level.setSliderStyle(juce::Slider::LinearVertical);
+    _level.setTooltip("Amount this clock should contribute to the velocity of a beat");
     addAndMakeVisible(_level);
 
 }

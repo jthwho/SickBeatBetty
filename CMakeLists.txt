@@ -16,6 +16,7 @@ juce_add_plugin(SickBeatBetty
     PLUGIN_CODE SBB1
     FORMATS AU VST3 Standalone
     PRODUCT_NAME "Sick Beat Betty"
+    
 )
 
 target_sources(SickBeatBetty
@@ -29,6 +30,11 @@ target_sources(SickBeatBetty
         src/parambutton.cpp
 )
 
+juce_add_binary_data(IconBinaryData
+    SOURCES
+        icons/drum.png
+)
+
 target_compile_definitions(SickBeatBetty
     PUBLIC
         # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
@@ -40,11 +46,12 @@ target_compile_definitions(SickBeatBetty
 
 target_link_libraries(SickBeatBetty
     PRIVATE
-        # AudioPluginData           # If we'd created a binary data target, we'd link to it here
+        IconBinaryData
         juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
 )
+
 
