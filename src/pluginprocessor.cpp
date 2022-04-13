@@ -22,6 +22,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     // If we're standalone, the BPM needs to come from a parameter.  If not,
     // we get it from the playhead
     if(wrapperType == wrapperType_Standalone) {
+        printf("Adding standalone parameters...\n");
         ret.add(std::make_unique<juce::AudioParameterFloat>(
             "bpm", 
             "BPM",
@@ -152,7 +153,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 
 juce::AudioProcessorEditor * PluginProcessor::createEditor() {
     // Uncomment and comment the other one to test our custom GUI.
-    return new PluginEditor(*this);
+    return new PluginEditor(*this, _params);
     //return new juce::GenericAudioProcessorEditor(*this);
 }
 
