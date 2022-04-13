@@ -4,10 +4,16 @@
 PluginEditor::PluginEditor(PluginProcessor &proc) : 
     AudioProcessorEditor(&proc), 
     _proc(proc),
-    _clockUI(proc.beatGen(0), 0)
+    _beatGenTabs(juce::TabbedButtonBar::TabsAtTop)
 {
-    addAndMakeVisible(_clockUI);
-    setSize(400, 400);
+    setTitle("Sick Beat Betty");
+    setResizable(true, false);
+    for(int i = 0; i < PluginProcessor::beatGenCount; i++) {
+        _beatGenUI.add(std::make_unique<BeatGenUI>(_proc.beatGen(i)));
+        _beatGenTabs.addTab(juce::String::formatted("Gen %d", i + 1), juce::Colour(32, 32, 32), _beatGenUI[i], false);
+    }
+    addAndMakeVisible(_beatGenTabs);
+    setSize(960, 540);
 }
 
 PluginEditor::~PluginEditor() {
@@ -15,15 +21,12 @@ PluginEditor::~PluginEditor() {
 }
 
 void PluginEditor::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::azure);
+    juce::ignoreUnused(g);
     return;
 }
 
 void PluginEditor::resized() {
-    // Mini-rant: The manual nature of the JUCE layout sucks.  Sure wish there was something
-    // like QLayout from Qt for this.  
-    // TODO: Reinvent QLayout for the JUCE world.
     auto r = getLocalBounds();
-    _clockUI.setBounds(r);
+    _beatGenTabs.setBounds(r);
     return;
 }

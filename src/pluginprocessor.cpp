@@ -152,8 +152,8 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 
 juce::AudioProcessorEditor * PluginProcessor::createEditor() {
     // Uncomment and comment the other one to test our custom GUI.
-    //return new PluginEditor(*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new PluginEditor(*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
 }
 
 bool PluginProcessor::hasEditor() const {

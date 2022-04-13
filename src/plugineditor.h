@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pluginprocessor.h"
-#include "beatgenclockui.h"
+#include "beatgenui.h"
 
 class PluginEditor  : public juce::AudioProcessorEditor {
     public:
@@ -13,7 +13,8 @@ class PluginEditor  : public juce::AudioProcessorEditor {
 
     private:
         PluginProcessor                     &_proc;
-        BeatGenClockUI                      _clockUI;
+        juce::TabbedComponent               _beatGenTabs;
+        juce::OwnedArray<BeatGenUI>         _beatGenUI;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };
