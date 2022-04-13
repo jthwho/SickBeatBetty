@@ -2,7 +2,8 @@
 
 Beat Generator
 
-- [ ] Make rate a 0.0 .. 1.0 parameter that scales based on the gen rate
+- [x] Make rate a 0.0 .. 1.0 parameter that scales based on the gen rate
+- [ ] Make BeatGen::getParameter() use a hash map instead of a linked list.
 
 GUI
 
