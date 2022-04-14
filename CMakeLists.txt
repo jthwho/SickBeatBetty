@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
-project(SICK_BEAT_BETTY VERSION 0.0.1)
+project(SICK_BEAT_BETTY VERSION 1.0.0)
 
 add_subdirectory(JUCE)                    # JUCE is a submodule.  Make sure it has been properly cloned.
 
 juce_add_plugin(SickBeatBetty
-    VERSION 1.0.0
+    VERSION ${PROJECT_VERSION}
     COMPANY_NAME "Howard Logic"
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
@@ -29,6 +29,7 @@ target_sources(SickBeatBetty
         src/paramslider.cpp
         src/parambutton.cpp
         src/beatvisualizer.cpp
+        src/aboutui.cpp
 )
 
 juce_add_binary_data(IconBinaryData

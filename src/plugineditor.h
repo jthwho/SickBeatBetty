@@ -3,6 +3,7 @@
 #include "pluginprocessor.h"
 #include "beatgenui.h"
 #include "paramslider.h"
+#include "aboutui.h"
 
 class PluginEditor  : public juce::AudioProcessorEditor {
     public:
@@ -19,6 +20,7 @@ class PluginEditor  : public juce::AudioProcessorEditor {
         juce::TabbedComponent               _beatGenTabs;
         juce::OwnedArray<BeatGenUI>         _beatGenUI;
         juce::TooltipWindow                 _tooltipWindow;
+        AboutUI                             _aboutUI;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

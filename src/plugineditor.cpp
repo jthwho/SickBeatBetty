@@ -14,6 +14,7 @@ PluginEditor::PluginEditor(PluginProcessor &proc, juce::AudioProcessorValueTreeS
         _beatGenUI.add(std::make_unique<BeatGenUI>(_proc.beatGen(i)));
         _beatGenTabs.addTab(juce::String::formatted("Gen %d", i + 1), juce::Colour(32, 32, 32), _beatGenUI[i], false);
     }
+    _beatGenTabs.addTab("About", juce::Colour(32, 32, 32), &_aboutUI, false);
     addAndMakeVisible(_beatGenTabs);
     addAndMakeVisible(_tooltipWindow);
     
