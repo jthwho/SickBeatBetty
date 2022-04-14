@@ -28,6 +28,7 @@ target_sources(SickBeatBetty
         src/beatgenclockui.cpp
         src/paramslider.cpp
         src/parambutton.cpp
+        src/beatvisualizer.cpp
 )
 
 juce_add_binary_data(IconBinaryData

@@ -139,10 +139,8 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     
     //printf("%lf bpm, %d samples, %lf qnPerSample, %lf start, %lf end\n",
     //    bpm, audio.getNumSamples(), qnPerSample, genState.start, genState.end); 
-
-    if(transportRunning) {
-        for(auto &i : _beatGen) i.generate(genState, midi);
-    }
+    for(auto &i : _beatGen) i.generate(genState, midi);
+    
     _now += qnPerBlock;
     return;
 }

@@ -7,14 +7,16 @@
 #include "beatgenclockui.h"
 #include "parambutton.h"
 #include "paramslider.h"
+#include "beatvisualizer.h"
 
-class BeatGenUI : public juce::Component {
+class BeatGenUI : public juce::Component, public juce::ActionListener {
     public:
         BeatGenUI(BeatGen &beatGen);
         ~BeatGenUI();
 
     private:
         BeatGen                             &_beatGen;
+        BeatVisualizer                      _beatVisualizer;
         ParamButton                         _enabled;
         juce::Label                         _labelNote;
         ParamSlider                         _note;
@@ -30,6 +32,7 @@ class BeatGenUI : public juce::Component {
 
         void paint(juce::Graphics &g) override;
         void resized() override;
+        void actionListenerCallback(const juce::String &msg) override;
 };
 
 #endif

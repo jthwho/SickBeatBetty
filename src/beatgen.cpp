@@ -403,6 +403,7 @@ void BeatGen::updateBeats() {
         beat.velocity = beatClock[i] ? levelAtPhase(beat.start) : 0.0;
         _beats.push_back(beat);
     }
+    _actionBroadcaster.sendActionMessage("beatsChanged");
     return;
 }
 
@@ -411,29 +412,37 @@ void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
         _needsUpdate = false;
         updateBeats();
     }
+
     // Check all the beats and schedule the ones that occur during this generate period.
     int startPhase = (int)state.start;
     int endPhase = (int)state.end;
     bool enabled = state.enabled && _enabled.valueBool();
     double phaseOffset = _phaseOffset.value();
     int note = _note.valueInt();
+    int lastBeat = -1;
     for(int phase = startPhase; phase <= endPhase; phase++) {
-        for (auto &i : _beats) {
-            double start = (double)phase + fmod(i.start + phaseOffset, 1.0);
+        for(int i = 0; i < _beats.size(); i++) {
+            const Beat &beat = _beats[i];
+            double start = (double)phase + fmod(beat.start + phaseOffset, 1.0);
             if(start >= state.start && start < state.end) {
                 if(_lastNote >= 0) {
                     int offset = (int)floor((start - state.start) / state.stepSize);
                     midi.addEvent(juce::MidiMessage::noteOff(1, _lastNote), offset);
                     _lastNote = -1;
                 }
-                if(enabled && i.velocity > 0.0) {
+                lastBeat = i;
+                if(enabled && beat.velocity > 0.0) {
                     //printf("G%d N%d %lf %lf %lf %lf %lf\n", _index, note, i.velocity, i.start, start, state.start, state.end);
                     int offset = (int)ceil((start - state.start) / state.stepSize);
-                    midi.addEvent(juce::MidiMessage::noteOn(1, note, (float)i.velocity), offset);
+                    midi.addEvent(juce::MidiMessage::noteOn(1, note, (float)beat.velocity), offset);
                     _lastNote = note;
                 }
             }
         }
+    }
+    if(lastBeat != -1 && lastBeat != _currentBeat) {
+        _currentBeat = lastBeat;
+        _actionBroadcaster.sendActionMessage("currentBeatChanged");
     }
     return;
 }

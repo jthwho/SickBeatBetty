@@ -137,6 +137,8 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
             double  velocity = 0.0;
         };
 
+        typedef std::vector<Beat> BeatVector;
+
         static const int firstNote = 36;
         static const int maxClockCount = 4;
         static const int maxBars = 8;
@@ -148,6 +150,9 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         int index() const;
 
         const ParamValue *getParameter(int id, int index = 0) const;
+        const BeatVector &beats() const;
+        int currentBeat() const;
+        juce::ActionBroadcaster &actionBroadcaster();
 
         std::unique_ptr<juce::AudioProcessorParameterGroup> createParameterLayout() const;
         
@@ -159,9 +164,11 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
     private:
         int                                     _index = 0;
         int                                     _lastNote = -1;
-        std::vector<Beat>                       _beats;
-        std::atomic<bool>                       _needsUpdate = false;
-    
+        BeatVector                              _beats;
+        std::atomic<bool>                       _needsUpdate = true;
+        std::atomic<int>                        _currentBeat = 0;
+        juce::ActionBroadcaster                 _actionBroadcaster;
+
         // Parameters
         ParamValue::PtrList         _params;
         ParamValue                  _enabled;
@@ -188,4 +195,16 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
 
 inline int BeatGen::index() const {
     return _index;
+}
+
+inline const BeatGen::BeatVector &BeatGen::beats() const {
+    return _beats;
+}
+
+inline int BeatGen::currentBeat() const {
+    return _currentBeat;
+}
+
+inline juce::ActionBroadcaster &BeatGen::actionBroadcaster() {
+    return _actionBroadcaster;
 }

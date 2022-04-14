@@ -20,4 +20,4 @@ GUI
 - [x] Add BPM parameter to Standalone
 - [ ] Add memory storage and a parameter to switch to memory
 - [ ] Add options to store / recall to memory slot
-- [ ] Add some sort of way to visualize the generated beats.
+- [x] Add some sort of way to visualize the generated beats.

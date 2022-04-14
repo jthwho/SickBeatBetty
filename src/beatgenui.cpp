@@ -62,10 +62,23 @@ BeatGenUI::BeatGenUI(BeatGen &beatGen) :
         _clocks.add(std::make_unique<BeatGenClockUI>(_beatGen, i));
         addAndMakeVisible(_clocks[i]);
     }
+    addAndMakeVisible(_beatVisualizer);
+    _beatGen.actionBroadcaster().addActionListener(this);
+    _beatVisualizer.setCurrentBeat(_beatGen.currentBeat());
+    _beatVisualizer.setBeats(_beatGen.beats());
 }
 
 BeatGenUI::~BeatGenUI() {
+    _beatGen.actionBroadcaster().removeActionListener(this);
+}
 
+void BeatGenUI::actionListenerCallback(const juce::String &msg) {
+    if(msg == "currentBeatChanged") {
+        _beatVisualizer.setCurrentBeat(_beatGen.currentBeat());
+    } else if(msg == "beatsChanged") {
+        _beatVisualizer.setBeats(_beatGen.beats());
+    }
+    return;
 }
 
 void BeatGenUI::paint(juce::Graphics &g) {
@@ -79,9 +92,12 @@ void BeatGenUI::resized() {
     using Fr = juce::Grid::Fr;
     using Px = juce::Grid::Px;
     using Item = juce::GridItem;
-
     auto r = getLocalBounds();
-    _enabled.setBounds(r.removeFromTop(TEXTBOX_HEIGHT));
+
+    auto topControls = r.removeFromTop(TEXTBOX_HEIGHT * 6);
+    _beatVisualizer.setBounds(topControls.removeFromRight(300));
+
+    _enabled.setBounds(topControls.removeFromTop(TEXTBOX_HEIGHT));
 
     grid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
     grid.templateColumns = { Track(Px(50)), Track(Fr(1)) };
@@ -92,7 +108,7 @@ void BeatGenUI::resized() {
         Item(_labelBars), Item(_bars),
         Item(_labelPhaseOffset), Item(_phaseOffset)
     };
-    grid.performLayout(r.removeFromTop(TEXTBOX_HEIGHT * grid.templateRows.size()));    
+    grid.performLayout(topControls.removeFromTop(TEXTBOX_HEIGHT * grid.templateRows.size()));    
 
     grid = juce::Grid();
     grid.templateRows = { Track(Fr(1)) };
