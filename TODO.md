@@ -21,3 +21,4 @@ GUI
 - [ ] Add memory storage and a parameter to switch to memory
 - [ ] Add options to store / recall to memory slot
 - [x] Add some sort of way to visualize the generated beats.
+- [ ] Add an About page (maybe another tab for now?)
