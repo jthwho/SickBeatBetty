@@ -433,14 +433,14 @@ void BeatGen::generate(const GenerateState &state, juce::MidiBuffer &midi) {
             if(start >= phaseStart && start < phaseEnd) {
                 if(_lastNote >= 0) {
                     int offset = (int)floor((start - phaseStart) / stepSize);
-                    midi.addEvent(juce::MidiMessage::noteOff(1, _lastNote), offset);
+                    midi.addEvent(juce::MidiMessage::noteOff(10, _lastNote), offset);
                     _lastNote = -1;
                 }
                 lastBeat = i;
                 if(enabled && beat.velocity > 0.0) {
                     //printf("G%d N%d %lf %lf %lf %lf %lf\n", _index, note, i.velocity, i.start, start, state.start, state.end);
                     int offset = (int)ceil((start - phaseStart) / stepSize);
-                    midi.addEvent(juce::MidiMessage::noteOn(1, note, (float)beat.velocity), offset);
+                    midi.addEvent(juce::MidiMessage::noteOn(10, note, (float)beat.velocity), offset);
                     _lastNote = note;
                 }
             }
