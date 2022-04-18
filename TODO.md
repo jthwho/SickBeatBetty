@@ -2,7 +2,7 @@
 
 Build
 
-- [ ] Add current git hash to build so we can read it at runtime
+- [x] Add current git hash to build so we can read it at runtime
 
 Beat Generator
 
@@ -27,6 +27,6 @@ GUI
 - [ ] Add options to store / recall to memory slot
 - [x] Add some sort of way to visualize the generated beats.
 - [x] Add an About page (maybe another tab for now?)
-- [ ] Add logo to about page
-- [ ] Add git hash to about page
+- [x] Add logo to about page
+- [x] Add git hash to about page
 - [ ] Add tip jar to about page

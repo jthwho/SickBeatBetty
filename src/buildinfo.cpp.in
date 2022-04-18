@@ -1,0 +1,14 @@
+#include "buildinfo.h"
+
+static const BuildInfo _buildInfo = {
+    "@BUILD_INFO_NAME@",
+    "@BUILD_INFO_VERSION@",
+    "@BUILD_INFO_REPOIDENT@",
+    "@BUILD_INFO_DATE@",
+    "@BUILD_INFO_TIME@",
+    "@BUILD_INFO_HOSTNAME@"
+};
+
+const BuildInfo *getBuildInfo() {
+    return &_buildInfo;
+}

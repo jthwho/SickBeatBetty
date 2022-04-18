@@ -12,10 +12,9 @@ class AboutUI : public juce::Component {
     private:
         juce::ImageComponent        _betty;
         juce::Label                 _nameLabel;
-        juce::Label                 _versionLabel;
-        juce::Label                 _descLabel;
         juce::HyperlinkButton       _pluginLink;
-
+        juce::TextEditor            _descLabel;
+        
         void resized() override;
         void paint(juce::Graphics &g) override;
 };

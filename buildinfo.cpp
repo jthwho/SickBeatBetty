@@ -1,0 +1,1 @@
+const char *buildInfoFullVersion() { return "1.0.0-gbef8071"; }
