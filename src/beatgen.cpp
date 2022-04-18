@@ -371,8 +371,9 @@ static double phaseMultiplyAndShift(double inputPhase, double multiply, double s
 double BeatGen::levelAtPhase(double phase) const {
     double ret = _level.value();
     for(int i = 0; i < maxClockCount; i++) {
+        double clockRate = (double)clockRateFloatToInt(_clockRate[i].value());
         double phaseCount;
-        double clockLevel = phaseMultiplyAndShift(phase, (double)clockRateFloatToInt(_clockRate[i].value()), _clockPhaseOffset[i].value(), phaseCount);
+        double clockLevel = phaseMultiplyAndShift(phase, clockRate, _clockPhaseOffset[i].value(), phaseCount);
         clockLevel *= _clockLevel[i].value();
         ret += clockLevel;
     }

@@ -14,7 +14,12 @@ ParamButton::~ParamButton() {
 }
 
 void ParamButton::resetToDefault() {
-    _param.setValue(_param.getDefaultValue());
+    float val = _param.getDefaultValue();
+    printf("Resetting %s to %f\n", _param.name.toStdString().c_str(), val);
+    _param.sendValueChangedMessageToListeners(val);
+    _param.beginChangeGesture();
+    _param.setValueNotifyingHost(val);
+    _param.endChangeGesture();
     return;
 }
 

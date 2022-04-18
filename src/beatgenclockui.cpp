@@ -14,9 +14,8 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     _mixMode(*beatGen.getParameter(BeatGen::ParamClockMixMode, clockIndex)->param()),
     _level(*beatGen.getParameter(BeatGen::ParamClockLevel, clockIndex)->param())
 {
-    printf("ClockGenUI Constructor Called.\n");
     _reset.setButtonText("R");
-    _reset.onClick = [this] {printf("Reset Button Clicked.\n"); resetToDefaults();};
+    _reset.onClick = [this] { resetToDefaults(); };
     addAndMakeVisible(_reset);
        
     _enabled.setButtonText("Euclid Enabled");
