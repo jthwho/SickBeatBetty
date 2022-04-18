@@ -16,7 +16,8 @@ GUI
 - [ ] Maybe some better looking widgets?
 - [ ] Change the clock mix to a combo box w/ names
 - [ ] Add randomize and reset per parameter
-- [ ] Add randomize and reset per clock group
+- [X] Add reset button to each clock group
+- [ ] Add randomize button to each clock group
 - [ ] Add randomize and reset per gen
 - [ ] Add global randomize and reset
 - [ ] Add solo parameter to each gen
