@@ -14,6 +14,11 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     _mixMode(*beatGen.getParameter(BeatGen::ParamClockMixMode, clockIndex)->param()),
     _level(*beatGen.getParameter(BeatGen::ParamClockLevel, clockIndex)->param())
 {
+    printf("ClockGenUI Constructor Called.\n");
+    _reset.setButtonText("R");
+    _reset.onClick = [this] {printf("Reset Button Clicked.\n"); resetToDefaults();};
+    addAndMakeVisible(_reset);
+       
     _enabled.setButtonText("Euclid Enabled");
     _enabled.setTooltip("When enabled, this clock will be mixed with the previous clock to make a euclidian beat");
     _enabled.setToggleable(true);
@@ -72,9 +77,18 @@ void BeatGenClockUI::paint(juce::Graphics &g) {
     return;
 }
 
+void BeatGenClockUI::resetToDefaults(){
+    _enabled.resetToDefault();
+    _rate.resetToDefault();
+    _phaseOffset.resetToDefault();
+    _mixMode.resetToDefault();
+    _level.resetToDefault();
+}
+
 void BeatGenClockUI::resized() {
     auto r = getLocalBounds();
-    r.removeFromTop(LABEL_HEIGHT);
+    auto r2 = r.removeFromTop(LABEL_HEIGHT);
+    _reset.setBounds(r2.removeFromRight(40));
     _enabled.setBounds(r.removeFromTop(30));
 
     juce::Grid grid;

@@ -10,9 +10,11 @@ class ParamSlider : public juce::Slider {
     public:
         ParamSlider(juce::RangedAudioParameter &param, juce::UndoManager *undoManager = nullptr);
         ~ParamSlider();
+        void resetToDefault();
 
     private:
         juce::SliderParameterAttachment     _attach;
+        juce::RangedAudioParameter          &_param;
 };
 
 #endif
