@@ -1,3 +1,4 @@
+#include <BinaryData.h>
 #include "beatgenclockui.h"
 
 #define LABEL_HEIGHT        30
@@ -14,10 +15,17 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     _mixMode(*beatGen.getParameter(BeatGen::ParamClockMixMode, clockIndex)->param()),
     _level(*beatGen.getParameter(BeatGen::ParamClockLevel, clockIndex)->param())
 {
-    _reset.setButtonText("R");
+    juce::Image resetImage = juce::ImageCache::getFromMemory(BinaryData::reload_png, BinaryData::reload_pngSize);
+
+    _reset.setImages(false, true, true, 
+        resetImage, 1.0, juce::Colours::white,
+        resetImage, 1.0, juce::Colours::blueviolet,
+        resetImage, 1.0, juce::Colours::yellow
+    );
+    _reset.setTooltip(juce::String::formatted("Resets clock group %d back to default values", _clockIndex + 1));
     _reset.onClick = [this] { resetToDefaults(); };
     addAndMakeVisible(_reset);
-       
+
     _enabled.setButtonText("Euclid Enabled");
     _enabled.setTooltip("When enabled, this clock will be mixed with the previous clock to make a euclidian beat");
     _enabled.setToggleable(true);

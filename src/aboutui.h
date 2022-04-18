@@ -10,6 +10,7 @@ class AboutUI : public juce::Component {
         ~AboutUI();
 
     private:
+        juce::ImageComponent        _betty;
         juce::Label                 _nameLabel;
         juce::Label                 _versionLabel;
         juce::Label                 _descLabel;

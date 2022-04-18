@@ -35,6 +35,9 @@ target_sources(SickBeatBetty
 juce_add_binary_data(IconBinaryData
     SOURCES
         icons/drum.png
+        icons/dice.png 
+        icons/reload.png
+        icons/betty-white-devil-horns.jpg
 )
 
 target_compile_definitions(SickBeatBetty
