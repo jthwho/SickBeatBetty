@@ -66,7 +66,7 @@ void BeatVisualizer::computeBeatLayout() {
         l.size = size;
         possibleLayouts.push_back(l);
     }
-    printf("%d beats in (%d, %d) has %d options\n", beats, width, height, (int)possibleLayouts.size());
+    juce::Logger::writeToLog(juce::String::formatted("%d beats in (%d, %d) has %d options", beats, width, height, (int)possibleLayouts.size()));
 
     int choice = -1;
     // First, try to find the largest size where there's no short line.
@@ -99,12 +99,12 @@ void BeatVisualizer::computeBeatLayout() {
         }
     }
     if(choice == -1) {
-        printf("Failed to find a choice!\n");
+        juce::Logger::writeToLog("Failed to find a choice!");
         return;
     }
 
     const Layout &l = possibleLayouts.at(choice);
-    printf("Best %d: %d size, %d lines, %d bpl %d last\n", choice, l.size, l.totalLines, l.beatsPerLine, l.beatsPerLastLine);
+    juce::Logger::writeToLog(juce::String::formatted("Best %d: %d size, %d lines, %d bpl %d last", choice, l.size, l.totalLines, l.beatsPerLine, l.beatsPerLastLine));
     int y = _margin;
     int lastLine = l.totalLines - 1;
     _beatSize = l.size - _margin;

@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "beatgen.h"
+#include "applogger.h"
 
 class PluginProcessor  : public juce::AudioProcessor {
     public:
@@ -42,6 +43,7 @@ class PluginProcessor  : public juce::AudioProcessor {
 
     private:
         // Order here maters.  There are init dependency on each other.
+        AppLogger                                               _logger;
         BeatGen                                                 _beatGen[beatGenCount];
         // The params tree holds values that are shared between us and the host.
         juce::AudioProcessorValueTreeState                      _params;
@@ -51,6 +53,7 @@ class PluginProcessor  : public juce::AudioProcessor {
         std::atomic<float>                                      *_bpm = nullptr;
         double                                                  _sampleRate = 0.0;
         double                                                  _now = 0.0;
+         
 
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)

@@ -10,12 +10,14 @@ PluginProcessor::PluginProcessor() :
     AudioProcessor(
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
+    _logger("sickbeatbetty.log"),
     _beatGen(),
     _params(*this, nullptr, juce::Identifier("params"), createParameterLayout()),
     _props("props")
 {
+    juce::Logger::writeToLog(juce::String("Starting up PluginProcessor for ") + getWrapperTypeDescription(wrapperType));
     for(auto &i : _beatGen) i.attachParams(_params);
-    _bpm = _params.getRawParameterValue("bpm");    
+    _bpm = _params.getRawParameterValue("bpm");
 }
 
 PluginProcessor::~PluginProcessor() {
@@ -27,7 +29,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     // If we're standalone, the BPM needs to come from a parameter.  If not,
     // we get it from the playhead
     if(wrapperType == wrapperType_Standalone) {
-        printf("Adding standalone parameters...\n");
         ret.add(std::make_unique<juce::AudioParameterFloat>(
             "bpm", 
             "BPM",
@@ -128,7 +129,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
  
 
     if(transportRunning != _transportRunning) {
-        printf("Transport %s\n", transportRunning ? "Running" : "Stopped");
+        juce::Logger::writeToLog(juce::String("Transport ") + (transportRunning ? "Running" : "Stopped"));
         _transportRunning = transportRunning;
     }
 
@@ -186,18 +187,18 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
     saverInfoNode->createNewChildElement("wrapperName")->addTextElement(getWrapperTypeDescription(wrapperType));
     //printf("GET STATE:\n%s\n", root.toString().toStdString().c_str());
     copyXmlToBinary(root, destData);
-    printf("Saved state\n");
+    juce::Logger::writeToLog("Saved state");
     return;
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
     std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary (data, sizeInBytes));
     if(xml.get() == nullptr) {
-        printf("Failed to parse state XML\n");
+        juce::Logger::writeToLog("Failed to parse state XML");
         return;
     }
     if(xml->getTagName() != STATE_NAME) {
-        printf("State XML tag name is incorrect. Expected %s, got %s\n", STATE_NAME, xml->getTagName().toStdString().c_str());
+        juce::Logger::writeToLog(juce::String("State XML tag name is incorrect. Expected ") + STATE_NAME + ", got " + xml->getTagName());
         return;
     }
     
@@ -206,33 +207,33 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
     if(stateVersion == STATE_VERSION) {
         auto paramsXml = xml->getChildByName(_params.state.getType());
         if(paramsXml == nullptr) {
-            printf("Failed to get params node from state XML\n");
+            juce::Logger::writeToLog("Failed to get params node from state XML");
             return;
         }
 
         auto propsXml = xml->getChildByName(_props.getType());
         if(propsXml == nullptr) {
-            printf("Failed to get props node from state XML\n");
+            juce::Logger::writeToLog("Failed to get props node from state XML");
             return;
         }
 
         auto params = juce::ValueTree::fromXml(*paramsXml);
         if(!params.isValid()) {
-            printf("Failed to parse params from state XML\n");
+            juce::Logger::writeToLog("Failed to parse params from state XML");
             return;
         }
 
         auto props = juce::ValueTree::fromXml(*propsXml);
         if(!props.isValid()) {
-            printf("Failed to parse props from state XML\n");
+            juce::Logger::writeToLog("Failed to parse props from state XML");
             return;
         }
         _params.replaceState(params);
         _props.copyPropertiesAndChildrenFrom(props, nullptr);
-        printf("Loaded state\n");
+        juce::Logger::writeToLog("Loaded state");
 
     } else {
-        printf("State XML version %d isn't supported\n", stateVersion);
+        juce::Logger::writeToLog(juce::String::formatted("State XML version %d isn't supported", stateVersion));
     }
     return;
 }

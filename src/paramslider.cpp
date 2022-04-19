@@ -13,7 +13,7 @@ ParamSlider::~ParamSlider() {
 
 void ParamSlider::resetToDefault() {
     float val = _param.getDefaultValue();
-    printf("Resetting %s to %f\n", _param.name.toStdString().c_str(), val);
+    juce::Logger::writeToLog(juce::String("Resetting ") + _param.name + " to " + juce::String(val));
     _param.sendValueChangedMessageToListeners(val);
     _param.beginChangeGesture();
     _param.setValueNotifyingHost(val);

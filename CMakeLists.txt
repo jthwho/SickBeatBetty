@@ -61,6 +61,7 @@ target_sources(SickBeatBetty
         src/parambutton.cpp
         src/beatvisualizer.cpp
         src/aboutui.cpp
+        src/applogger.cpp
 )
 
 juce_add_binary_data(IconBinaryData

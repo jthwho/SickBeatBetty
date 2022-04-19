@@ -23,7 +23,6 @@ PluginEditor::PluginEditor(PluginProcessor &proc, juce::AudioProcessorValueTreeS
 
     auto bpmParam = params.getParameter("bpm");
     if(bpmParam != nullptr) {
-        printf("Standalone Editor\n");
         _bpm = std::make_unique<ParamSlider>(*bpmParam);
         _bpm->setTextBoxStyle(juce::Slider::TextBoxLeft, false, 50, 30);
         addAndMakeVisible(_bpm.get());
