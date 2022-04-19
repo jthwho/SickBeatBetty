@@ -43,7 +43,10 @@ class PluginProcessor  : public juce::AudioProcessor {
     private:
         // Order here maters.  There are init dependency on each other.
         BeatGen                                                 _beatGen[beatGenCount];
+        // The params tree holds values that are shared between us and the host.
         juce::AudioProcessorValueTreeState                      _params;
+        // The props are properties that need to be stored, but are not shared with the host.
+        juce::ValueTree                                         _props;
         bool                                                    _transportRunning = false;
         std::atomic<float>                                      *_bpm = nullptr;
         double                                                  _sampleRate = 0.0;

@@ -31,6 +31,7 @@ AboutUI::AboutUI() :
 
     _descLabel.setText(desc, juce::sendNotification);
     _descLabel.setReadOnly(true);
+    _descLabel.setMultiLine(true, true);
     addAndMakeVisible(_descLabel);
     
 }

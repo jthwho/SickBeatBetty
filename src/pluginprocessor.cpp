@@ -1,13 +1,18 @@
 
 #include "pluginprocessor.h"
 #include "plugineditor.h"
+#include "buildinfo.h"
+
+#define STATE_VERSION       1
+#define STATE_NAME          "SickBeatBettyState"
 
 PluginProcessor::PluginProcessor() : 
     AudioProcessor(
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
     _beatGen(),
-    _params(*this, nullptr, juce::Identifier("params"), createParameterLayout())
+    _params(*this, nullptr, juce::Identifier("params"), createParameterLayout()),
+    _props("props")
 {
     for(auto &i : _beatGen) i.attachParams(_params);
     _bpm = _params.getRawParameterValue("bpm");    
@@ -160,18 +165,74 @@ bool PluginProcessor::hasEditor() const {
 }
 
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
-    auto state = _params.copyState();
-    std::unique_ptr<juce::XmlElement> xml(state.createXml());
-    copyXmlToBinary(*xml, destData);
+    const BuildInfo *buildInfo = getBuildInfo();
+
+    juce::XmlElement root(STATE_NAME);
+    root.setAttribute("version", STATE_VERSION);
+    root.addChildElement(_params.copyState().createXml().release());
+    root.addChildElement(_props.createXml().release());
+
+    auto buildInfoNode = root.createNewChildElement("BuildInfo");
+    buildInfoNode->createNewChildElement("version")->addTextElement(buildInfo->version);
+    buildInfoNode->createNewChildElement("repoident")->addTextElement(buildInfo->repoident);
+    buildInfoNode->createNewChildElement("date")->addTextElement(buildInfo->date);
+    buildInfoNode->createNewChildElement("time")->addTextElement(buildInfo->time);
+
+    auto saverInfoNode = root.createNewChildElement("SaverInfo");
+    saverInfoNode->createNewChildElement("timestamp")->addTextElement(juce::Time::getCurrentTime().toISO8601(true));
+    saverInfoNode->createNewChildElement("os")->addTextElement(juce::SystemStats::getOperatingSystemName());
+    saverInfoNode->createNewChildElement("juceVersion")->addTextElement(juce::SystemStats::getJUCEVersion());
+    saverInfoNode->createNewChildElement("wrapperType")->addTextElement(juce::String(wrapperType));
+    saverInfoNode->createNewChildElement("wrapperName")->addTextElement(getWrapperTypeDescription(wrapperType));
+    //printf("GET STATE:\n%s\n", root.toString().toStdString().c_str());
+    copyXmlToBinary(root, destData);
+    printf("Saved state\n");
     return;
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
-    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary (data, sizeInBytes));
-    if(xmlState.get() != nullptr) {
-        if(xmlState->hasTagName(_params.state.getType())) {
-            _params.replaceState (juce::ValueTree::fromXml(*xmlState));
+    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary (data, sizeInBytes));
+    if(xml.get() == nullptr) {
+        printf("Failed to parse state XML\n");
+        return;
+    }
+    if(xml->getTagName() != STATE_NAME) {
+        printf("State XML tag name is incorrect. Expected %s, got %s\n", STATE_NAME, xml->getTagName().toStdString().c_str());
+        return;
+    }
+    
+    // This will allow us to support multiple state versions in the future if we need to.
+    int stateVersion = xml->getIntAttribute("version", -1);
+    if(stateVersion == STATE_VERSION) {
+        auto paramsXml = xml->getChildByName(_params.state.getType());
+        if(paramsXml == nullptr) {
+            printf("Failed to get params node from state XML\n");
+            return;
         }
+
+        auto propsXml = xml->getChildByName(_props.getType());
+        if(propsXml == nullptr) {
+            printf("Failed to get props node from state XML\n");
+            return;
+        }
+
+        auto params = juce::ValueTree::fromXml(*paramsXml);
+        if(!params.isValid()) {
+            printf("Failed to parse params from state XML\n");
+            return;
+        }
+
+        auto props = juce::ValueTree::fromXml(*propsXml);
+        if(!props.isValid()) {
+            printf("Failed to parse props from state XML\n");
+            return;
+        }
+        _params.replaceState(params);
+        _props.copyPropertiesAndChildrenFrom(props, nullptr);
+        printf("Loaded state\n");
+
+    } else {
+        printf("State XML version %d isn't supported\n", stateVersion);
     }
     return;
 }
