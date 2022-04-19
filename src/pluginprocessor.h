@@ -43,7 +43,7 @@ class PluginProcessor  : public juce::AudioProcessor {
 
     private:
         // Order here maters.  There are init dependency on each other.
-        AppLogger                                               _logger;
+        int                                                     _index;
         BeatGen                                                 _beatGen[beatGenCount];
         // The params tree holds values that are shared between us and the host.
         juce::AudioProcessorValueTreeState                      _params;

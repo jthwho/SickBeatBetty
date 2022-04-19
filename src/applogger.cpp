@@ -1,6 +1,13 @@
 #include <iostream>
 #include "applogger.h"
 
+#define LOGFILE_NAME    "sickbeatbetty.log"
+
+AppLogger &AppLogger::instance() {
+    static AppLogger _logger(LOGFILE_NAME);
+    return _logger;
+}
+
 AppLogger::AppLogger(const juce::String &fn) {
     setup(fn);
 }

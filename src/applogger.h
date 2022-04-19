@@ -6,13 +6,16 @@
 
 class AppLogger : public juce::Logger {
     public:
-        AppLogger(const juce::String &logname);
+        // Returns the singleton instance of the AppLogger
+        static AppLogger &instance();
+
         ~AppLogger();
 
     protected:
         void logMessage(const juce::String &msg) override;
 
     private:
+        AppLogger(const juce::String &logname);
         std::unique_ptr<juce::FileOutputStream>     _stream;
 
         void setup(const juce::String &logFileName);

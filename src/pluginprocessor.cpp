@@ -2,20 +2,28 @@
 #include "pluginprocessor.h"
 #include "plugineditor.h"
 #include "buildinfo.h"
+#include "applogger.h"
 
 #define STATE_VERSION       1
 #define STATE_NAME          "SickBeatBettyState"
+
+static int registerPluginProcessor(PluginProcessor *p) {
+    juce::ignoreUnused(p);
+    static int _pluginProcID = 0;
+    AppLogger::instance(); // Call this to make sure the app logger instance has been created.
+    return _pluginProcID++;
+}
 
 PluginProcessor::PluginProcessor() : 
     AudioProcessor(
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
-    _logger("sickbeatbetty.log"),
+    _index(registerPluginProcessor(this)),
     _beatGen(),
     _params(*this, nullptr, juce::Identifier("params"), createParameterLayout()),
     _props("props")
 {
-    juce::Logger::writeToLog(juce::String("Starting up PluginProcessor for ") + getWrapperTypeDescription(wrapperType));
+    juce::Logger::writeToLog(juce::String("Starting up PluginProcessor ") + juce::String(_index) + " for " + getWrapperTypeDescription(wrapperType));
     for(auto &i : _beatGen) i.attachParams(_params);
     _bpm = _params.getRawParameterValue("bpm");
 }
