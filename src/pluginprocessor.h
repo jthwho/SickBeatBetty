@@ -1,7 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "beatgen.h"
+#include "beatgengroup.h"
 #include "applogger.h"
 
 class PluginProcessor  : public juce::AudioProcessor {
@@ -44,7 +44,7 @@ class PluginProcessor  : public juce::AudioProcessor {
     private:
         // Order here maters.  There are init dependency on each other.
         int                                                     _index;
-        BeatGen                                                 _beatGen[beatGenCount];
+        BeatGenGroup                                            _beatGen;
         // The params tree holds values that are shared between us and the host.
         juce::AudioProcessorValueTreeState                      _params;
         // The props are properties that need to be stored, but are not shared with the host.

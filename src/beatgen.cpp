@@ -130,13 +130,8 @@ BoolVector mixBeats(const BoolVector &b1, const BoolVector &b2, int mode) {
         return ret;
 }
 
-int BeatGen::nextIndex() {
-    static int index = 0;
-    return index++;
-}
-
-BeatGen::BeatGen() :
-    _index(nextIndex()) 
+BeatGen::BeatGen(int idx) :
+    _index(idx) 
 {
     _enabled.setup(
         _params, 

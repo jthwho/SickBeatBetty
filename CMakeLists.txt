@@ -55,6 +55,7 @@ target_sources(SickBeatBetty
         src/plugineditor.cpp
         src/pluginprocessor.cpp
         src/beatgen.cpp
+        src/beatgengroup.cpp
         src/beatgenui.cpp
         src/beatgenclockui.cpp
         src/paramslider.cpp

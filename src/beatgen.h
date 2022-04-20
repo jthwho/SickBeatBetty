@@ -144,7 +144,7 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         static const int maxBars = 8;
         static const int maxClockRate = maxBars * 16;
 
-        BeatGen();
+        BeatGen(int index);
         ~BeatGen();
 
         int index() const;
@@ -190,7 +190,6 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         int clockRateFloatToInt(float val) const;
         float clockRateIntToFloat(int value) const;
 
-        static int nextIndex(); // FIXME: This is lame.
 };
 
 inline int BeatGen::index() const {

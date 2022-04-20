@@ -19,12 +19,12 @@ PluginProcessor::PluginProcessor() :
         BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo())
     ),
     _index(registerPluginProcessor(this)),
-    _beatGen(),
+    _beatGen(beatGenCount),
     _params(*this, nullptr, juce::Identifier("params"), createParameterLayout()),
     _props("props")
 {
     juce::Logger::writeToLog(juce::String("Starting up PluginProcessor ") + juce::String(_index) + " for " + getWrapperTypeDescription(wrapperType));
-    for(auto &i : _beatGen) i.attachParams(_params);
+    for(int i = 0; i < _beatGen.size(); i++) _beatGen[i].attachParams(_params);
     _bpm = _params.getRawParameterValue("bpm");
 }
 
@@ -43,7 +43,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
             1.0f, 999.0f, 120.0f
         ));
     }
-    for(auto &i : _beatGen) ret.add(i.createParameterLayout());
+    for(int i = 0; i < _beatGen.size(); i++) ret.add(_beatGen[i].createParameterLayout());
     return ret;
 }
 
@@ -153,7 +153,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     
     //printf("%lf bpm, %d samples, %lf qnPerSample, %lf start, %lf end\n",
     //    bpm, audio.getNumSamples(), qnPerSample, genState.start, genState.end); 
-    for(auto &i : _beatGen) i.generate(genState, midi);
+    for(int i = 0; i < _beatGen.size(); i++) _beatGen[i].generate(genState, midi);
     
     _now += qnPerBlock;
     return;
