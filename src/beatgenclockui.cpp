@@ -23,7 +23,7 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
         resetImage, 1.0, juce::Colours::yellow
     );
     _reset.setTooltip(juce::String::formatted("Resets clock group %d back to default values", _clockIndex + 1));
-    _reset.onClick = [this] { resetToDefaults(); };
+    _reset.onClick = [this] { resetToDefaults(); }; 
     addAndMakeVisible(_reset);
 
     _enabled.setButtonText("Euclid Enabled");
