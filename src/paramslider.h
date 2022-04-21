@@ -1,6 +1,7 @@
 #ifndef _PARAMSLIDER_H_
 #define _PARAMSLIDER_H_
 
+#include "paramhelper.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
@@ -14,7 +15,8 @@ class ParamSlider : public juce::Slider {
 
     private:
         juce::SliderParameterAttachment     _attach;
-        juce::RangedAudioParameter          &_param;
+        ParamHelper                         _paramHelper;
+
 };
 
 #endif
