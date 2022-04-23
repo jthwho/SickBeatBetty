@@ -1,5 +1,5 @@
 #include "paramhelper.h"
-#include "stdlib.h"
+//#include <juce_audio_processors/juce_audio_processors.h>
 
 ParamHelper::ParamHelper(juce::RangedAudioParameter& param) :
     _param(param)
@@ -13,8 +13,8 @@ void ParamHelper::resetToDefault() {
 }
 
 void ParamHelper::setToRandomValue() {
-    int intVal = rand() % 100 + 1;
-    float val = intVal / 100;
+    juce::Random rand = juce::Random();
+    float val = rand.nextFloat();
     updateParameter(val);
 }
 
