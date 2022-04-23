@@ -6,6 +6,7 @@
 #include "beatgen.h"
 #include "paramslider.h"
 #include "parambutton.h"
+#include "paramcombobox.h"
 
 class BeatGenClockUI : public juce::Component {
     public:
@@ -23,7 +24,7 @@ class BeatGenClockUI : public juce::Component {
         juce::Label         _phaseOffsetLabel;
         ParamSlider         _phaseOffset;
         juce::Label         _mixModeLabel;
-        ParamSlider         _mixMode;
+        ParamComboBox       _mixMode;
         juce::Label         _levelLabel;
         ParamSlider         _level;
 

@@ -60,6 +60,7 @@ target_sources(SickBeatBetty
         src/beatgenclockui.cpp
         src/paramslider.cpp
         src/parambutton.cpp
+        src/paramcombobox.cpp
         src/beatvisualizer.cpp
         src/aboutui.cpp
         src/applogger.cpp

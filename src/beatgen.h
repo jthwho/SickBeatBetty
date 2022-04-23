@@ -144,6 +144,8 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         static const int maxBars = 8;
         static const int maxClockRate = maxBars * 16;
 
+        static const juce::StringArray &mixModeNames();
+
         BeatGen(int index);
         ~BeatGen();
 

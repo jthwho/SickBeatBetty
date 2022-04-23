@@ -101,6 +101,24 @@ BoolVector generateEuclidBeat(int count, int total, int off = 0) {
         return ret;
 }
 
+const juce::StringArray &BeatGen::mixModeNames() {
+    static juce::StringArray _mixModeNames = {
+        /*  0 */ "In AND Clock",
+        /*  1 */ "In OR Clock",
+        /*  2 */ "In XOR Clock"
+        /*  3 */ "NOT(In AND Clock)",
+        /*  4 */ "NOT(In OR Clock)",
+        /*  5 */ "NOT(In XOR Clock)",
+        /*  6 */ "(NOT In) AND Clock",
+        /*  7 */ "(NOT In) OR Clock",
+        /*  8 */ "(NOT In) XOR Clock",
+        /*  9 */ "In AND (NOT Clock)",
+        /* 10 */ "In OR (NOT Clock)",
+        /* 11 */ "In XOR (NOT Clock)"
+    };
+    return _mixModeNames;
+}
+
 BoolVector mixBeats(const BoolVector &b1, const BoolVector &b2, int mode) {
         BoolVector ret;
         size_t total = b1.size();
@@ -285,10 +303,9 @@ BeatGen::BeatGen(int idx) :
             juce::String::formatted(PARAM_PREFIX "%d_clock%d_mix_mode", _index, i),
             juce::String::formatted("G%d Clock %d Mix Mode", _index + 1, i + 1),
             [](const ParamValue &p) {
-                return std::make_unique<juce::AudioParameterInt>(
-                    p.id(), p.name(),
-                    0, 11, 0,
-                    juce::String()
+                return std::make_unique<juce::AudioParameterChoice>(
+                    p.id(), p.name(), 
+                    mixModeNames(), 0
                 );
             },
             ParamClockMixMode,

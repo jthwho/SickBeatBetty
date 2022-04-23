@@ -50,11 +50,11 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     addAndMakeVisible(_phaseOffset);
 
     _mixModeLabel.setText("Mix Mode", juce::dontSendNotification);
-    _mixModeLabel.setJustificationType(juce::Justification::centred);
+    _mixModeLabel.setJustificationType(juce::Justification::left);
     addAndMakeVisible(_mixModeLabel);
 
-    _mixMode.setTextBoxStyle(juce::Slider::TextBoxAbove, false, SLIDER_WIDTH_MIN, TEXTBOX_HEIGHT_MIN);
-    _mixMode.setSliderStyle(juce::Slider::LinearVertical);
+    //_mixMode.setTextBoxStyle(juce::Slider::TextBoxAbove, false, SLIDER_WIDTH_MIN, TEXTBOX_HEIGHT_MIN);
+    //_mixMode.setSliderStyle(juce::Slider::LinearVertical);
     _mixMode.setTooltip("When used for Euclidian generation, this is the mode used to mix with the previous clock");
     addAndMakeVisible(_mixMode);
 
@@ -88,7 +88,7 @@ void BeatGenClockUI::resetToDefaults(){
     _enabled.resetToDefault();
     _rate.resetToDefault();
     _phaseOffset.resetToDefault();
-    _mixMode.resetToDefault();
+    _mixMode.paramHelper().resetToDefault();
     _level.resetToDefault();
 }
 
@@ -98,6 +98,11 @@ void BeatGenClockUI::resized() {
     _reset.setBounds(r2.removeFromRight(40));
     _enabled.setBounds(r.removeFromTop(30));
 
+    auto r3 = r.removeFromBottom(30);
+    _mixModeLabel.setBounds(r3.removeFromLeft(80));
+    r3.removeFromRight(10);
+    _mixMode.setBounds(r3);
+
     juce::Grid grid;
     using Track = juce::Grid::TrackInfo;
     using Fr = juce::Grid::Fr;
@@ -105,10 +110,10 @@ void BeatGenClockUI::resized() {
     using Item = juce::GridItem;
 
     grid.templateRows = { Track(Px(LABEL_HEIGHT)), Track(Fr(1)) };
-    grid.templateColumns = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
+    grid.templateColumns = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
     grid.items = { 
-        Item(_levelLabel), Item(_rateLabel), Item(_phaseOffsetLabel), Item(_mixModeLabel),
-        Item(_level), Item(_rate), Item(_phaseOffset), Item(_mixMode) 
+        Item(_levelLabel), Item(_rateLabel), Item(_phaseOffsetLabel),
+        Item(_level), Item(_rate), Item(_phaseOffset)
     };
     grid.performLayout(r);
 

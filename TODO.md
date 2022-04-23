@@ -8,7 +8,9 @@ Beat Generator
 
 - [x] Make rate a 0.0 .. 1.0 parameter that scales based on the gen rate
 - [ ] Make BeatGen::getParameter() use a hash map instead of a linked list.
-
+- [ ] Add swing control
+- [ ] Break apart the beat rendering and the beat serving so different
+  
 GUI
 
 - [ ] Add some sort of icon
@@ -30,3 +32,5 @@ GUI
 - [x] Add logo to about page
 - [x] Add git hash to about page
 - [ ] Add tip jar to about page
+- [ ] Circular beats visualization
+  
