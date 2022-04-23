@@ -13,10 +13,11 @@ class ParamHelper {
         ParamHelper(juce::RangedAudioParameter& param);
         ~ParamHelper();
         void resetToDefault();
-        void setToRandomValues();
+        void setToRandomValue();
 
     private:
         juce::RangedAudioParameter &_param;
+        void updateParameter(float val);
 
 };
 #endif

@@ -1,4 +1,5 @@
 #include "paramhelper.h"
+#include "stdlib.h"
 
 ParamHelper::ParamHelper(juce::RangedAudioParameter& param) :
     _param(param)
@@ -8,16 +9,21 @@ ParamHelper::ParamHelper(juce::RangedAudioParameter& param) :
 
 void ParamHelper::resetToDefault() {
     float val = _param.getDefaultValue();
-    printf("Resetting %s to %f\n", _param.name.toStdString().c_str(), val);
+    updateParameter(val);    
+}
+
+void ParamHelper::setToRandomValue() {
+    int intVal = rand() % 100 + 1;
+    float val = intVal / 100;
+    updateParameter(val);
+}
+
+void ParamHelper::updateParameter(float val) {
     _param.sendValueChangedMessageToListeners(val);
     _param.beginChangeGesture();
     _param.setValueNotifyingHost(val);
     _param.endChangeGesture();
     return;
-}
-
-void ParamHelper::setToRandomValues() {
-    //TODO:  Figure this out.
 }
 
 ParamHelper::~ParamHelper() {
