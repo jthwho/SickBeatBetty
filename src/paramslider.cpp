@@ -15,3 +15,7 @@ ParamSlider::~ParamSlider() {
 void ParamSlider::resetToDefault() {
     _paramHelper.resetToDefault();
 }
+
+void ParamSlider::setToRandomValue() {
+    _paramHelper.setToRandomValue();
+}

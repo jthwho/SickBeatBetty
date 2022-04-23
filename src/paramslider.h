@@ -12,6 +12,7 @@ class ParamSlider : public juce::Slider {
         ParamSlider(juce::RangedAudioParameter &param, juce::UndoManager *undoManager = nullptr);
         ~ParamSlider();
         void resetToDefault();
+        void setToRandomValue();
 
     private:
         juce::SliderParameterAttachment     _attach;

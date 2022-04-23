@@ -11,6 +11,7 @@ class ParamButton : public juce::ToggleButton {
         ParamButton(juce::RangedAudioParameter &param, juce::UndoManager *undoManager = nullptr);
         ~ParamButton();
         void resetToDefault();
+        void setToRandomValue();
 
     private:
         juce::ButtonParameterAttachment     _attach;
