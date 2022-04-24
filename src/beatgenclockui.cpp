@@ -106,7 +106,7 @@ void BeatGenClockUI::resized() {
     auto r = getLocalBounds();
     auto r2 = r.removeFromTop(LABEL_HEIGHT);
     _reset.setBounds(r2.removeFromRight(40));
-    _randomize.setBounds(r2.removeFromLeft(40));
+    _randomize.setBounds(r2.removeFromLeft(60));
     _enabled.setBounds(r.removeFromTop(30));
     
     auto r3 = r.removeFromBottom(30);
