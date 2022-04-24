@@ -105,7 +105,7 @@ const juce::StringArray &BeatGen::mixModeNames() {
     static juce::StringArray _mixModeNames = {
         /*  0 */ "In AND Clock",
         /*  1 */ "In OR Clock",
-        /*  2 */ "In XOR Clock"
+        /*  2 */ "In XOR Clock",
         /*  3 */ "NOT(In AND Clock)",
         /*  4 */ "NOT(In OR Clock)",
         /*  5 */ "NOT(In XOR Clock)",
