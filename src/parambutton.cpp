@@ -12,11 +12,3 @@ ParamButton::ParamButton(juce::RangedAudioParameter &param, juce::UndoManager *u
 ParamButton::~ParamButton() {
 
 }
-
-void ParamButton::resetToDefault() {
-    _paramHelper.resetToDefault();
-}
-
-void ParamButton::setToRandomValue() {
-    _paramHelper.setToRandomValue();
-}

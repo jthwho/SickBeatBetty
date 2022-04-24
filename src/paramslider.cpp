@@ -11,11 +11,3 @@ ParamSlider::ParamSlider(juce::RangedAudioParameter &param, juce::UndoManager *u
 ParamSlider::~ParamSlider() {
 
 }
-
-void ParamSlider::resetToDefault() {
-    _paramHelper.resetToDefault();
-}
-
-void ParamSlider::setToRandomValue() {
-    _paramHelper.setToRandomValue();
-}

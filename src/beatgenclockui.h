@@ -13,11 +13,13 @@ class BeatGenClockUI : public juce::Component {
         BeatGenClockUI(BeatGen &beatGen, int clockIndex);
         ~BeatGenClockUI();
         void resetToDefaults();
+        void randomizeValues();
 
     private:
         BeatGen             &_beatGen;
         int                 _clockIndex;
         juce::ImageButton   _reset;
+        juce::TextButton    _randomize;
         ParamButton         _enabled;
         juce::Label         _rateLabel;
         ParamSlider         _rate;
