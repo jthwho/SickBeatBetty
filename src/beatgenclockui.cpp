@@ -93,7 +93,9 @@ void BeatGenClockUI::resetToDefaults(){
 }
 
 void BeatGenClockUI::randomizeValues() {
-    // TODO
+    _rate.paramHelper().setToRandomValue();
+    _phaseOffset.paramHelper().setToRandomValue();
+    _level.paramHelper().setToRandomValue();
 }
 
 void BeatGenClockUI::resized() {
