@@ -85,11 +85,15 @@ void BeatGenClockUI::paint(juce::Graphics &g) {
 }
 
 void BeatGenClockUI::resetToDefaults(){
-    _enabled.resetToDefault();
-    _rate.resetToDefault();
-    _phaseOffset.resetToDefault();
+    _enabled.paramHelper().resetToDefault();
+    _rate.paramHelper().resetToDefault();
+    _phaseOffset.paramHelper().resetToDefault();
     _mixMode.paramHelper().resetToDefault();
-    _level.resetToDefault();
+    _level.paramHelper().resetToDefault();
+}
+
+void BeatGenClockUI::randomizeValues() {
+    // TODO
 }
 
 void BeatGenClockUI::resized() {
