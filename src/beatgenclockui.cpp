@@ -26,6 +26,10 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     _reset.onClick = [this] { resetToDefaults(); }; 
     addAndMakeVisible(_reset);
 
+    _randomize.setButtonText("Rand");
+    _randomize.onClick = [this] { randomizeValues(); };
+    addAndMakeVisible(_randomize);
+
     _enabled.setButtonText("Euclid Enabled");
     _enabled.setTooltip("When enabled, this clock will be mixed with the previous clock to make a euclidian beat");
     _enabled.setToggleable(true);
@@ -102,8 +106,9 @@ void BeatGenClockUI::resized() {
     auto r = getLocalBounds();
     auto r2 = r.removeFromTop(LABEL_HEIGHT);
     _reset.setBounds(r2.removeFromRight(40));
+    _randomize.setBounds(r2.removeFromLeft(40));
     _enabled.setBounds(r.removeFromTop(30));
-
+    
     auto r3 = r.removeFromBottom(30);
     _mixModeLabel.setBounds(r3.removeFromLeft(80));
     r3.removeFromRight(10);

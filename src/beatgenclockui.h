@@ -19,6 +19,7 @@ class BeatGenClockUI : public juce::Component {
         BeatGen             &_beatGen;
         int                 _clockIndex;
         juce::ImageButton   _reset;
+        juce::TextButton    _randomize;
         ParamButton         _enabled;
         juce::Label         _rateLabel;
         ParamSlider         _rate;
