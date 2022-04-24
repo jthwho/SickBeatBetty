@@ -8,7 +8,7 @@ Beat Generator
 
 - [x] Make rate a 0.0 .. 1.0 parameter that scales based on the gen rate
 - [ ] Make BeatGen::getParameter() use a hash map instead of a linked list.
-- [ ] Add swing control
+- [x] Add swing control
 - [ ] Break apart the beat rendering and the beat serving so different
   
 GUI
