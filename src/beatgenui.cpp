@@ -103,7 +103,7 @@ void BeatGenUI::resized() {
     using Item = juce::GridItem;
     auto r = getLocalBounds();
 
-    auto topControls = r.removeFromTop(TEXTBOX_HEIGHT * 6);
+    auto topControls = r.removeFromTop(TEXTBOX_HEIGHT * 7);
     _beatVisualizer.setBounds(topControls.removeFromRight(300));
 
     _enabled.setBounds(topControls.removeFromTop(TEXTBOX_HEIGHT));
@@ -120,6 +120,7 @@ void BeatGenUI::resized() {
     };
     grid.performLayout(topControls.removeFromTop(TEXTBOX_HEIGHT * grid.templateRows.size()));    
 
+    r.removeFromTop(10);
     grid = juce::Grid();
     grid.templateRows = { Track(Fr(1)) };
     for(int i = 0; i < _clocks.size(); i++) {
