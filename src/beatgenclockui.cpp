@@ -26,7 +26,14 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     _reset.onClick = [this] { resetToDefaults(); }; 
     addAndMakeVisible(_reset);
 
-    _randomize.setButtonText("Rand");
+    juce::Image randomizeImage = juce::ImageCache::getFromMemory(BinaryData::dice_png, BinaryData::dice_pngSize);
+
+    _randomize.setImages(false, true, true,
+        randomizeImage, 1.0, juce::Colours::white,
+        randomizeImage, 1.0, juce::Colours::blueviolet,
+        randomizeImage, 1.0, juce::Colours::yellow
+    );
+    _randomize.setTooltip(juce::String::formatted("Sets clock group %d to random values", _clockIndex + 1));
     _randomize.onClick = [this] { randomizeValues(); };
     addAndMakeVisible(_randomize);
 
@@ -106,7 +113,7 @@ void BeatGenClockUI::resized() {
     auto r = getLocalBounds();
     auto r2 = r.removeFromTop(LABEL_HEIGHT);
     _reset.setBounds(r2.removeFromRight(40));
-    _randomize.setBounds(r2.removeFromLeft(60));
+    _randomize.setBounds(r2.removeFromRight(40));
     _enabled.setBounds(r.removeFromTop(30));
     
     auto r3 = r.removeFromBottom(30);
