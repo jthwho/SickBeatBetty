@@ -138,7 +138,7 @@ INCLUDE(CPack)
 # Hack to allow building a installer from within VS Code
 ADD_CUSTOM_TARGET(installer
     COMMAND "${CMAKE_CPACK_COMMAND}"
-        "-C" "Release"
+        "-C" "Debug"
         "--config" "${CMAKE_BINARY_DIR}/InstallerConfig.cmake"
     COMMENT "Running CPack. Please wait..."
     DEPENDS ${PROJECT_NAME}
