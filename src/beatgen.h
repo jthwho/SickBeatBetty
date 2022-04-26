@@ -122,7 +122,8 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
             ParamClockRate          = 8,
             ParamClockPhaseOffset   = 9,
             ParamClockMixMode       = 10,
-            ParamClockLevel         = 11
+            ParamClockLevel         = 11,
+            ParamSwing              = 12
         };
         
         struct GenerateState {
@@ -179,6 +180,7 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         ParamValue                  _phaseOffset;
         ParamValue                  _bars;
         ParamValue                  _level;
+        ParamValue                  _swing;
         ParamValue                  _clockEnabled[maxClockCount];
         ParamValue                  _clockRate[maxClockCount];
         ParamValue                  _clockPhaseOffset[maxClockCount];

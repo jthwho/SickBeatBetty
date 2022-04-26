@@ -2,8 +2,6 @@
 #define _PARAMHELPER_H_
 #pragma once
 
-//#include "paramslider.h"
-//#include "parambutton.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 

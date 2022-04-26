@@ -105,7 +105,7 @@ const juce::StringArray &BeatGen::mixModeNames() {
     static juce::StringArray _mixModeNames = {
         /*  0 */ "In AND Clock",
         /*  1 */ "In OR Clock",
-        /*  2 */ "In XOR Clock"
+        /*  2 */ "In XOR Clock",
         /*  3 */ "NOT(In AND Clock)",
         /*  4 */ "NOT(In OR Clock)",
         /*  5 */ "NOT(In XOR Clock)",
@@ -229,6 +229,19 @@ BeatGen::BeatGen(int idx) :
             );
         },
         ParamBars
+    );
+
+    _swing.setup(
+        _params,
+        juce::String::formatted(PARAM_PREFIX "%d_swing", _index),
+        juce::String::formatted("G%d Swing", _index + 1),
+        [](const ParamValue &p) {
+                return std::make_unique<juce::AudioParameterFloat>(
+                    p.id(), p.name(),
+                    -1.0f, 1.0f, 0.0f
+                );
+        },
+        ParamSwing
     );
     
     for(int i = 0; i < maxClockCount; i++) {
@@ -395,7 +408,10 @@ double BeatGen::levelAtPhase(double phase) const {
 }
 
 void BeatGen::updateBeats() {
+    int bars = _bars.valueInt();
     int steps = _steps.valueInt();
+    double swing = _swing.value();
+    double swingOffset = (0.5 / ((double)steps / (double)bars)) * swing;
     _beats.clear();
     BoolVector clock[maxClockCount];
     BoolVector beatClock;
@@ -413,6 +429,10 @@ void BeatGen::updateBeats() {
     for(int i = 0; i < steps; i++) {
         Beat beat;
         beat.start = (double)i / (double)steps;
+        // Swing all the odd beats.
+        if(i & 0x01) {
+            beat.start -= swingOffset;
+        }
         beat.velocity = beatClock[i] ? levelAtPhase(beat.start) : 0.0;
         _beats.push_back(beat);
     }

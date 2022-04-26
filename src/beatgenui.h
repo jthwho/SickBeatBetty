@@ -28,6 +28,8 @@ class BeatGenUI : public juce::Component, public juce::ActionListener {
         ParamSlider                         _bars;
         juce::Label                         _labelLevel;
         ParamSlider                         _level;
+        juce::Label                         _labelSwing;
+        ParamSlider                         _swing;
         juce::OwnedArray<BeatGenClockUI>    _clocks;
 
         void paint(juce::Graphics &g) override;

@@ -26,6 +26,17 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     _reset.onClick = [this] { resetToDefaults(); }; 
     addAndMakeVisible(_reset);
 
+    juce::Image randomizeImage = juce::ImageCache::getFromMemory(BinaryData::dice_png, BinaryData::dice_pngSize);
+
+    _randomize.setImages(false, true, true,
+        randomizeImage, 1.0, juce::Colours::white,
+        randomizeImage, 1.0, juce::Colours::blueviolet,
+        randomizeImage, 1.0, juce::Colours::yellow
+    );
+    _randomize.setTooltip(juce::String::formatted("Sets clock group %d to random values", _clockIndex + 1));
+    _randomize.onClick = [this] { randomizeValues(); };
+    addAndMakeVisible(_randomize);
+
     _enabled.setButtonText("Euclid Enabled");
     _enabled.setTooltip("When enabled, this clock will be mixed with the previous clock to make a euclidian beat");
     _enabled.setToggleable(true);
@@ -85,19 +96,26 @@ void BeatGenClockUI::paint(juce::Graphics &g) {
 }
 
 void BeatGenClockUI::resetToDefaults(){
-    _enabled.resetToDefault();
-    _rate.resetToDefault();
-    _phaseOffset.resetToDefault();
+    _enabled.paramHelper().resetToDefault();
+    _rate.paramHelper().resetToDefault();
+    _phaseOffset.paramHelper().resetToDefault();
     _mixMode.paramHelper().resetToDefault();
-    _level.resetToDefault();
+    _level.paramHelper().resetToDefault();
+}
+
+void BeatGenClockUI::randomizeValues() {
+    _rate.paramHelper().setToRandomValue();
+    _phaseOffset.paramHelper().setToRandomValue();
+    _level.paramHelper().setToRandomValue();
 }
 
 void BeatGenClockUI::resized() {
     auto r = getLocalBounds();
     auto r2 = r.removeFromTop(LABEL_HEIGHT);
     _reset.setBounds(r2.removeFromRight(40));
+    _randomize.setBounds(r2.removeFromRight(40));
     _enabled.setBounds(r.removeFromTop(30));
-
+    
     auto r3 = r.removeFromBottom(30);
     _mixModeLabel.setBounds(r3.removeFromLeft(80));
     r3.removeFromRight(10);

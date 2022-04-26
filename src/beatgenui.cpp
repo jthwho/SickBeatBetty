@@ -11,6 +11,7 @@ BeatGenUI::BeatGenUI(BeatGen &beatGen) :
     _phaseOffset(*beatGen.getParameter(BeatGen::ParamPhaseOffset)->param()),
     _bars(*beatGen.getParameter(BeatGen::ParamBars)->param()),
     _level(*beatGen.getParameter(BeatGen::ParamLevel)->param()),
+    _swing(*beatGen.getParameter(BeatGen::ParamSwing)->param()),
     _beatGen(beatGen)
 {    
     _enabled.setButtonText("Enabled");
@@ -58,6 +59,14 @@ BeatGenUI::BeatGenUI(BeatGen &beatGen) :
     _level.setTooltip("Starting level of this generator's note.  Can be modified by each clock");
     addAndMakeVisible(_level);
 
+    _labelSwing.setText("Swing", juce::dontSendNotification);
+    addAndMakeVisible(_labelSwing);
+
+    _swing.setSliderStyle(juce::Slider::LinearHorizontal);
+    _swing.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxLeft, false, TEXTBOX_WIDTH, TEXTBOX_HEIGHT);
+    _swing.setTooltip("Amount of swing");
+    addAndMakeVisible(_swing);
+
     for(int i = 0; i < BeatGen::maxClockCount; i++) {
         _clocks.add(std::make_unique<BeatGenClockUI>(_beatGen, i));
         addAndMakeVisible(_clocks[i]);
@@ -94,22 +103,24 @@ void BeatGenUI::resized() {
     using Item = juce::GridItem;
     auto r = getLocalBounds();
 
-    auto topControls = r.removeFromTop(TEXTBOX_HEIGHT * 6);
+    auto topControls = r.removeFromTop(TEXTBOX_HEIGHT * 7);
     _beatVisualizer.setBounds(topControls.removeFromRight(300));
 
     _enabled.setBounds(topControls.removeFromTop(TEXTBOX_HEIGHT));
 
-    grid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
+    grid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
     grid.templateColumns = { Track(Px(50)), Track(Fr(1)) };
     grid.items = {
         Item(_labelNote), Item(_note),
         Item(_labelLevel), Item(_level),
         Item(_labelSteps), Item(_steps),
         Item(_labelBars), Item(_bars),
-        Item(_labelPhaseOffset), Item(_phaseOffset)
+        Item(_labelPhaseOffset), Item(_phaseOffset),
+        Item(_labelSwing), Item(_swing)
     };
     grid.performLayout(topControls.removeFromTop(TEXTBOX_HEIGHT * grid.templateRows.size()));    
 
+    r.removeFromTop(10);
     grid = juce::Grid();
     grid.templateRows = { Track(Fr(1)) };
     for(int i = 0; i < _clocks.size(); i++) {
