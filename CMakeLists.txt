@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.15)
 
 find_package(Git QUIET REQUIRED)
 
-set(APP_NAME "Sick Beat Betty")
+set(APP_NAME "SICKBEATBETTY")
+set(APP_VENDOR "HOWARDLOGIC")
+set(APP_HUMAN_NAME "Sick Beat Betty")
+set(APP_HUMAN_VENDOR "Howard Logic")
 set(APP_VERSION "1.0.0")
 
 execute_process(
@@ -20,20 +23,20 @@ set_property(GLOBAL APPEND
 )
 
 # Capture any other build info variables
-set(BUILD_INFO_NAME ${APP_NAME})
-set(BUILD_INFO_VERSION ${APP_VERSION})
+set(BUILD_INFO_NAME "${APP_HUMAN_NAME}")
+set(BUILD_INFO_VERSION "${APP_VERSION}")
 string(TIMESTAMP BUILD_INFO_DATE "%Y-%m-%d")
 string(TIMESTAMP BUILD_INFO_TIME "%H:%M:%S")
 cmake_host_system_information(RESULT BUILD_INFO_HOSTNAME QUERY HOSTNAME)
 configure_file(src/buildinfo.cpp.in buildinfo.cpp)
 
-project(SICK_BEAT_BETTY VERSION ${APP_VERSION})
+project(${APP_NAME} VERSION ${APP_VERSION})
 
 add_subdirectory(JUCE)                    # JUCE is a submodule.  Make sure it has been properly cloned.
 
-juce_add_plugin(SickBeatBetty
+juce_add_plugin(${PROJECT_NAME}
     VERSION ${PROJECT_VERSION}
-    COMPANY_NAME "Howard Logic"
+    COMPANY_NAME "${APP_HUMAN_VENDOR}"
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
     NEEDS_MIDI_OUTPUT TRUE
@@ -43,13 +46,13 @@ juce_add_plugin(SickBeatBetty
     PLUGIN_MANUFACTURER_CODE HowL
     PLUGIN_CODE SBB1
     FORMATS AU VST3 Standalone
-    PRODUCT_NAME ${APP_NAME}
+    PRODUCT_NAME "${APP_HUMAN_NAME}"
     
 )
 
 include_directories(src)
 
-target_sources(SickBeatBetty
+target_sources(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/buildinfo.cpp
         src/plugineditor.cpp
@@ -75,7 +78,7 @@ juce_add_binary_data(IconBinaryData
         icons/betty-white-devil-horns.jpg
 )
 
-target_compile_definitions(SickBeatBetty
+target_compile_definitions(${PROJECT_NAME}
     PUBLIC
         # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
         JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
@@ -84,7 +87,7 @@ target_compile_definitions(SickBeatBetty
         JUCE_DISPLAY_SPLASH_SCREEN=0
 )
 
-target_link_libraries(SickBeatBetty
+target_link_libraries(${PROJECT_NAME}
     PRIVATE
         IconBinaryData
         juce::juce_audio_utils
@@ -92,5 +95,52 @@ target_link_libraries(SickBeatBetty
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
+)
+
+install(TARGETS ${PROJECT_NAME}_Standalone
+    DESTINATION "."
+    COMPONENT Standalone
+)
+
+install(TARGETS ${PROJECT_NAME}_VST3
+    LIBRARY DESTINATION "."
+    COMPONENT VST3
+)
+    
+set(CPACK_GENERATOR NSIS)
+#set(CPACK_GENERATOR WIX)
+set(CPACK_COMPONENTS_ALL VST3 Standalone)
+set(CPACK_COMPONENT_GROUPING ALL_COMPONENTS_IN_ONE)
+set(CPACK_PACKAGE_NAME ${APP_HUMAN_NAME})
+set(CPACK_PACKAGE_VENDOR ${APP_HUMAN_VENDOR})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${APP_HUMAN_NAME})
+#set(CPACK_PACKAGE_DESCRIPTION_FILE "description.txt")
+#set(CPACK_RESOURCE_FILE_WELCOME "welcome.txt")
+#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_WIX_UPGRADE_GUID "6541AC2E-DA46-481C-9CF6-FE3CDF3A4C3F")
+SET(CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/InstallerConfig.cmake")
+INCLUDE(CPack)
+
+#cpack_add_component(${PROJECT_NAME}_VST3
+#    DISPLAY_NAME "VST 3 Plugin"
+#)
+
+#cpack_add_component(${PROJECT_NAME}_Standalone
+#    DISPLAY_NAME "Standalone EXE"
+#)
+
+# Hack to allow building a installer from within VS Code
+ADD_CUSTOM_TARGET(installer
+    COMMAND "${CMAKE_CPACK_COMMAND}"
+        "-C" "Release"
+        "--config" "${CMAKE_BINARY_DIR}/InstallerConfig.cmake"
+    COMMENT "Running CPack. Please wait..."
+    DEPENDS ${PROJECT_NAME}
 )
 
