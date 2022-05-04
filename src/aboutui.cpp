@@ -17,7 +17,7 @@ AboutUI::AboutUI() :
     desc << "\nGIT " << buildInfo->repoident;
     desc << "\nBuilt " << buildInfo->date << " " << buildInfo->time << " (" << buildInfo->hostname << ")";
 
-    juce::Image bettyImage = juce::ImageCache::getFromMemory(BinaryData::bettywhitedevilhorns_jpg, BinaryData::bettywhitedevilhorns_jpgSize);
+    juce::Image bettyImage = juce::ImageCache::getFromMemory(BinaryData::bettywhitedevilhorns_png, BinaryData::bettywhitedevilhorns_pngSize);
     _betty.setImage(bettyImage, juce::RectanglePlacement::xMid | juce::RectanglePlacement::yMid);
     addAndMakeVisible(_betty);
 

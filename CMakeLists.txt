@@ -75,7 +75,7 @@ juce_add_binary_data(IconBinaryData
         icons/drum.png
         icons/dice.png 
         icons/reload.png
-        icons/betty-white-devil-horns.jpg
+        icons/betty-white-devil-horns.png
 )
 
 target_compile_definitions(${PROJECT_NAME}
