@@ -161,6 +161,16 @@ BeatGen::BeatGen(int idx) :
         ParamEnabled
     );
     
+    _solo.setup(
+        _params, 
+        juce::String::formatted(PARAM_PREFIX "%d_solo", _index),
+        juce::String::formatted("G%d Solo", _index + 1), 
+        [](const ParamValue &p) {
+            return std::make_unique<juce::AudioParameterBool>(p.id(), p.name(), false);
+        },
+        ParamSolo
+    );
+
     _note.setup(
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_note", _index),

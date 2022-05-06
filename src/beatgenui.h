@@ -18,6 +18,7 @@ class BeatGenUI : public juce::Component, public juce::ActionListener {
         BeatGen                             &_beatGen;
         BeatVisualizer                      _beatVisualizer;
         ParamButton                         _enabled;
+        ParamButton                         _solo;
         juce::Label                         _labelNote;
         ParamSlider                         _note;
         juce::Label                         _labelSteps;

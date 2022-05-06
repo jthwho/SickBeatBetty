@@ -11,6 +11,12 @@ class BeatGenGroup {
         BeatGenGroup(int numberOfBeatGens);
         ~BeatGenGroup();
 
+        bool isSoloed() const {
+            bool ret = false;
+            for(int i = 0; i < _beatGenVector.size(); i++) ret |= _beatGenVector.at(i)->isSolo();
+            return ret;
+        }
+
         int size() const {
             return (int)_beatGenVector.size();
         }

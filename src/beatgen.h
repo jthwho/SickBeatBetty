@@ -123,7 +123,8 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
             ParamClockPhaseOffset   = 9,
             ParamClockMixMode       = 10,
             ParamClockLevel         = 11,
-            ParamSwing              = 12
+            ParamSwing              = 12,
+            ParamSolo               = 13
         };
         
         struct GenerateState {
@@ -151,6 +152,7 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         ~BeatGen();
 
         int index() const;
+        bool isSolo() const;
 
         const ParamValue *getParameter(int id, int index = 0) const;
         const BeatVector &beats() const;
@@ -175,6 +177,7 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         // Parameters
         ParamValue::PtrList         _params;
         ParamValue                  _enabled;
+        ParamValue                  _solo;
         ParamValue                  _note;
         ParamValue                  _steps;
         ParamValue                  _phaseOffset;
@@ -198,6 +201,10 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
 
 inline int BeatGen::index() const {
     return _index;
+}
+
+inline bool BeatGen::isSolo() const {
+    return _solo.valueBool();
 }
 
 inline const BeatGen::BeatVector &BeatGen::beats() const {

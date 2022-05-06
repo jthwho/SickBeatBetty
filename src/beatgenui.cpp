@@ -6,6 +6,7 @@
 BeatGenUI::BeatGenUI(BeatGen &beatGen) :
     juce::Component(),
     _enabled(*beatGen.getParameter(BeatGen::ParamEnabled)->param()),
+    _solo(*beatGen.getParameter(BeatGen::ParamSolo)->param()),
     _note(*beatGen.getParameter(BeatGen::ParamNote)->param()),
     _steps(*beatGen.getParameter(BeatGen::ParamSteps)->param()),
     _phaseOffset(*beatGen.getParameter(BeatGen::ParamPhaseOffset)->param()),
@@ -18,6 +19,11 @@ BeatGenUI::BeatGenUI(BeatGen &beatGen) :
     _enabled.setToggleable(true);
     _enabled.setTooltip("Enables this beat generator");
     addAndMakeVisible(_enabled);
+
+    _solo.setButtonText("Solo");
+    _solo.setToggleable(true);
+    _solo.setTooltip("Solos this generator");
+    addAndMakeVisible(_solo);
 
     _labelNote.setText("Note", juce::dontSendNotification);
     addAndMakeVisible(_labelNote);
@@ -106,7 +112,9 @@ void BeatGenUI::resized() {
     auto topControls = r.removeFromTop(TEXTBOX_HEIGHT * 7);
     _beatVisualizer.setBounds(topControls.removeFromRight(300));
 
-    _enabled.setBounds(topControls.removeFromTop(TEXTBOX_HEIGHT));
+    auto topLine = topControls.removeFromTop(TEXTBOX_HEIGHT);
+    _enabled.setBounds(topLine.removeFromLeft(75));
+    _solo.setBounds(topLine.removeFromLeft(75));
 
     grid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
     grid.templateColumns = { Track(Px(50)), Track(Fr(1)) };

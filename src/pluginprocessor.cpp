@@ -152,8 +152,15 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
     genState.stepSize = qnPerSample / qnPerBar;
     
     //printf("%lf bpm, %d samples, %lf qnPerSample, %lf start, %lf end\n",
-    //    bpm, audio.getNumSamples(), qnPerSample, genState.start, genState.end); 
-    for(int i = 0; i < _beatGen.size(); i++) _beatGen[i].generate(genState, midi);
+    //    bpm, audio.getNumSamples(), qnPerSample, genState.start, genState.end);
+    // FIXME: Move this loop into the BeatGenGroup object
+    bool noSolo = !_beatGen.isSoloed(); 
+    for(int i = 0; i < _beatGen.size(); i++) {
+        BeatGen &gen = _beatGen[i];
+        if(noSolo || gen.isSolo()) {
+            _beatGen[i].generate(genState, midi);
+        }
+    }
     
     _now += qnPerBlock;
     return;

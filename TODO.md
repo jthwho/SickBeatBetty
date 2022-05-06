@@ -22,8 +22,8 @@ GUI
 - [x] Add randomize button to each clock group
 - [ ] Add randomize and reset per gen
 - [ ] Add global randomize and reset
-- [ ] Add solo parameter to each gen
-- [ ] Add solo notification and quick disable
+- [x] Add solo parameter to each gen
+- [ ] Add clear all solo button
 - [x] Add BPM parameter to Standalone
 - [ ] Add memory storage and a parameter to switch to memory
 - [ ] Add options to store / recall to memory slot
