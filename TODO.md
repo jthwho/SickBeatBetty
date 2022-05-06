@@ -3,13 +3,16 @@
 Build
 
 - [x] Add current git hash to build so we can read it at runtime
+- [ ] Setup windows build runner
+- [ ] Setup mac build runner
 
 Beat Generator
 
 - [x] Make rate a 0.0 .. 1.0 parameter that scales based on the gen rate
 - [ ] Make BeatGen::getParameter() use a hash map instead of a linked list.
 - [x] Add swing control
-- [ ] Break apart the beat rendering and the beat serving so different
+- [ ] Break apart the beat rendering and the beat serving
+- [ ] Maybe a morse code generator?  That'd be weird.  Not sure sick, but weird.
   
 GUI
 
@@ -33,4 +36,5 @@ GUI
 - [x] Add git hash to about page
 - [ ] Add tip jar to about page
 - [ ] Circular beats visualization
+- [ ] Uh, preset load and save, maybe?
   
