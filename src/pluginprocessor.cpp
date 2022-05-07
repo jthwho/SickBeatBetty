@@ -180,75 +180,92 @@ bool PluginProcessor::hasEditor() const {
     return true;
 }
 
-void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
+PluginProcessor::StateXML PluginProcessor::getStateXML() {
     const BuildInfo *buildInfo = getBuildInfo();
+    StateXML ret = std::make_unique<juce::XmlElement>(STATE_NAME);
 
-    juce::XmlElement root(STATE_NAME);
-    root.setAttribute("version", STATE_VERSION);
-    root.addChildElement(_params.copyState().createXml().release());
-    root.addChildElement(_props.createXml().release());
+    ret->setAttribute("version", STATE_VERSION);
+    ret->addChildElement(_params.copyState().createXml().release());
+    ret->addChildElement(_props.createXml().release());
 
-    auto buildInfoNode = root.createNewChildElement("BuildInfo");
+    auto buildInfoNode = ret->createNewChildElement("BuildInfo");
     buildInfoNode->createNewChildElement("version")->addTextElement(buildInfo->version);
     buildInfoNode->createNewChildElement("repoident")->addTextElement(buildInfo->repoident);
     buildInfoNode->createNewChildElement("date")->addTextElement(buildInfo->date);
     buildInfoNode->createNewChildElement("time")->addTextElement(buildInfo->time);
 
-    auto saverInfoNode = root.createNewChildElement("SaverInfo");
+    auto saverInfoNode = ret->createNewChildElement("SaverInfo");
     saverInfoNode->createNewChildElement("timestamp")->addTextElement(juce::Time::getCurrentTime().toISO8601(true));
     saverInfoNode->createNewChildElement("os")->addTextElement(juce::SystemStats::getOperatingSystemName());
     saverInfoNode->createNewChildElement("juceVersion")->addTextElement(juce::SystemStats::getJUCEVersion());
     saverInfoNode->createNewChildElement("wrapperType")->addTextElement(juce::String(wrapperType));
     saverInfoNode->createNewChildElement("wrapperName")->addTextElement(getWrapperTypeDescription(wrapperType));
-    //printf("GET STATE:\n%s\n", root.toString().toStdString().c_str());
-    copyXmlToBinary(root, destData);
+
+    return ret;
+}
+
+void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
+    StateXML xml = getStateXML();
+    copyXmlToBinary(*xml, destData);
     juce::Logger::writeToLog("Saved state");
     return;
 }
 
+bool PluginProcessor::setStateXMLv1(const StateXML &xml) {
+    auto paramsXml = xml->getChildByName(_params.state.getType());
+    if(paramsXml == nullptr) {
+        juce::Logger::writeToLog("Failed to get params node from state XML");
+        return false;
+    }
+
+    auto propsXml = xml->getChildByName(_props.getType());
+    if(propsXml == nullptr) {
+        juce::Logger::writeToLog("Failed to get props node from state XML");
+        return false;
+    }
+
+    auto params = juce::ValueTree::fromXml(*paramsXml);
+    if(!params.isValid()) {
+        juce::Logger::writeToLog("Failed to parse params from state XML");
+        return false;
+    }
+
+    auto props = juce::ValueTree::fromXml(*propsXml);
+    if(!props.isValid()) {
+        juce::Logger::writeToLog("Failed to parse props from state XML");
+        return false;
+    }
+
+    _params.replaceState(params);
+    _props.copyPropertiesAndChildrenFrom(props, nullptr);
+    juce::Logger::writeToLog("set state from v1 XML");
+    return true;
+}
+
+bool PluginProcessor::setStateXML(const StateXML &xml) {
+    if(xml->getTagName() != STATE_NAME) {
+        juce::Logger::writeToLog(juce::String("State XML tag name is incorrect. Expected ") + STATE_NAME + ", got " + xml->getTagName());
+        return false;
+    }
+
+    int stateVersion = xml->getIntAttribute("version", -1);
+    bool ret = false;
+    switch(stateVersion) {
+        case 1: ret = setStateXMLv1(xml); break;
+        default:
+            juce::Logger::writeToLog(juce::String::formatted("State XML version %d isn't supported", stateVersion));
+            ret = false;
+            break;
+    }
+    return ret;
+}
+
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
-    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary (data, sizeInBytes));
+    StateXML xml(getXmlFromBinary (data, sizeInBytes));
     if(xml.get() == nullptr) {
         juce::Logger::writeToLog("Failed to parse state XML");
         return;
     }
-    if(xml->getTagName() != STATE_NAME) {
-        juce::Logger::writeToLog(juce::String("State XML tag name is incorrect. Expected ") + STATE_NAME + ", got " + xml->getTagName());
-        return;
-    }
-    
-    // This will allow us to support multiple state versions in the future if we need to.
-    int stateVersion = xml->getIntAttribute("version", -1);
-    if(stateVersion == STATE_VERSION) {
-        auto paramsXml = xml->getChildByName(_params.state.getType());
-        if(paramsXml == nullptr) {
-            juce::Logger::writeToLog("Failed to get params node from state XML");
-            return;
-        }
-
-        auto propsXml = xml->getChildByName(_props.getType());
-        if(propsXml == nullptr) {
-            juce::Logger::writeToLog("Failed to get props node from state XML");
-            return;
-        }
-
-        auto params = juce::ValueTree::fromXml(*paramsXml);
-        if(!params.isValid()) {
-            juce::Logger::writeToLog("Failed to parse params from state XML");
-            return;
-        }
-
-        auto props = juce::ValueTree::fromXml(*propsXml);
-        if(!props.isValid()) {
-            juce::Logger::writeToLog("Failed to parse props from state XML");
-            return;
-        }
-        _params.replaceState(params);
-        _props.copyPropertiesAndChildrenFrom(props, nullptr);
-        juce::Logger::writeToLog("Loaded state");
-
-    } else {
-        juce::Logger::writeToLog(juce::String::formatted("State XML version %d isn't supported", stateVersion));
-    }
+    setStateXML(xml);
     return;
 }

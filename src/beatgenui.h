@@ -9,7 +9,10 @@
 #include "paramslider.h"
 #include "beatvisualizer.h"
 
-class BeatGenUI : public juce::Component, public juce::ActionListener {
+class BeatGenUI : 
+    public juce::Component, 
+    public juce::ActionListener
+{
     public:
         BeatGenUI(BeatGen &beatGen);
         ~BeatGenUI();
@@ -36,6 +39,7 @@ class BeatGenUI : public juce::Component, public juce::ActionListener {
         void paint(juce::Graphics &g) override;
         void resized() override;
         void actionListenerCallback(const juce::String &msg) override;
+
 };
 
 #endif

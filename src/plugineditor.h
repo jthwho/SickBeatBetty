@@ -5,7 +5,10 @@
 #include "paramslider.h"
 #include "aboutui.h"
 
-class PluginEditor  : public juce::AudioProcessorEditor {
+class PluginEditor  : 
+    public juce::AudioProcessorEditor,
+    public juce::MenuBarModel 
+{
     public:
         explicit PluginEditor(PluginProcessor &proc, juce::AudioProcessorValueTreeState &params);
         ~PluginEditor() override;
@@ -13,8 +16,17 @@ class PluginEditor  : public juce::AudioProcessorEditor {
         void paint(juce::Graphics &) override;
         void resized() override;
 
+        void loadPreset();
+        void savePreset();
+
+    protected:
+        juce::StringArray getMenuBarNames();
+        juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String &menuName);
+        void menuItemSelected (int menuItemID, int topLevelMenuIndex);
+
     private:
         PluginProcessor                     &_proc;
+        juce::MenuBarComponent              _menuBar;
         std::unique_ptr<ParamSlider>        _bpm;
         std::unique_ptr<juce::Label>        _bpmLabel;
         juce::TabbedComponent               _beatGenTabs;

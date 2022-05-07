@@ -68,6 +68,10 @@ target_sources(${PROJECT_NAME}
         src/aboutui.cpp
         src/applogger.cpp
         src/paramhelper.cpp
+        src/presetmanager.cpp
+        src/presetloadui.cpp
+        src/presetsaveui.cpp
+        src/valuetreetexteditor.cpp
 )
 
 juce_add_binary_data(IconBinaryData

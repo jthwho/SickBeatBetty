@@ -6,6 +6,8 @@
 
 class PluginProcessor  : public juce::AudioProcessor {
     public:
+        typedef std::unique_ptr<juce::XmlElement> StateXML;
+
         static const int beatGenCount = 8;
 
         PluginProcessor();
@@ -38,8 +40,14 @@ class PluginProcessor  : public juce::AudioProcessor {
         void getStateInformation(juce::MemoryBlock &destData) override;
         void setStateInformation (const void *data, int sizeInBytes) override;
 
+        StateXML getStateXML();
+        bool setStateXML(const StateXML &xml);
+
         BeatGen &beatGen(int index);
         const BeatGen &beatGen(int index) const;
+
+        juce::ValueTree &propsValueTree();
+        const juce::ValueTree &propsValueTree() const;
 
     private:
         // Order here maters.  There are init dependency on each other.
@@ -53,6 +61,8 @@ class PluginProcessor  : public juce::AudioProcessor {
         std::atomic<float>                                      *_bpm = nullptr;
         double                                                  _sampleRate = 0.0;
         double                                                  _now = 0.0;
+
+        bool setStateXMLv1(const StateXML &xml);
          
 
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
@@ -65,4 +75,12 @@ inline BeatGen &PluginProcessor::beatGen(int index) {
 
 inline const BeatGen &PluginProcessor::beatGen(int index) const {
     return _beatGen[index];
+}
+
+inline juce::ValueTree &PluginProcessor::propsValueTree() {
+    return _props;
+}
+
+inline const juce::ValueTree &PluginProcessor::propsValueTree() const {
+    return _props;
 }

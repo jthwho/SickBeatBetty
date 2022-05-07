@@ -1,13 +1,21 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "BinaryData.h"
+#include "presetloadui.h"
+#include "presetsaveui.h"
+
+#define MENU_NAME_PRESET    "Preset"
 
 PluginEditor::PluginEditor(PluginProcessor &proc, juce::AudioProcessorValueTreeState &params) : 
-    AudioProcessorEditor(&proc), 
+    AudioProcessorEditor(&proc),
+    MenuBarModel(),
     _proc(proc),
+    _menuBar(this),
     _beatGenTabs(juce::TabbedButtonBar::TabsAtTop),
     _tooltipWindow(this)
 {
+    addAndMakeVisible(_menuBar);
+
     setTitle("Sick Beat Betty");
     setResizable(true, false);
     for(int i = 0; i < PluginProcessor::beatGenCount; i++) {
@@ -46,10 +54,12 @@ void PluginEditor::paint(juce::Graphics &g) {
 
 void PluginEditor::resized() {
     auto r = getLocalBounds();
+      _menuBar.setBounds(r.removeFromTop(25));
+
     // Pretty hacky way to add the BPM slider, but it'll work.
     if(_bpm.get() != nullptr) {
         int w = 300;
-        int h = 30;
+        int h = 25;
         int x = r.getWidth() - w;
         int y = 0;
         _bpm->setBounds(x, y, w, h);
@@ -57,5 +67,40 @@ void PluginEditor::resized() {
         
     }
     _beatGenTabs.setBounds(r);
+    return;
+}
+
+juce::StringArray PluginEditor::getMenuBarNames() {
+    juce::StringArray ret = { 
+        MENU_NAME_PRESET
+    };
+    return ret;
+}
+
+juce::PopupMenu PluginEditor::getMenuForIndex(int topLevelMenuIndex, const juce::String &menuName) {
+    juce::ignoreUnused(topLevelMenuIndex);
+    juce::PopupMenu ret;
+    if(menuName == MENU_NAME_PRESET) {
+        ret.addItem("Load Preset...", [this]{ loadPreset(); });
+        ret.addItem("Save Preset...", [this]{ savePreset(); });
+    }
+    return ret;
+}
+
+void PluginEditor::menuItemSelected (int menuItemID, int topLevelMenuIndex) {
+    juce::ignoreUnused(menuItemID, topLevelMenuIndex);
+    return;
+}
+
+void PluginEditor::loadPreset() {
+    return;
+}
+
+void PluginEditor::savePreset() {
+    juce::DialogWindow::LaunchOptions dl;
+    dl.dialogTitle = "Save Preset";
+    dl.componentToCentreAround = this;
+    dl.content.setOwned(new PresetSaveUI(_proc));
+    dl.launchAsync();
     return;
 }
