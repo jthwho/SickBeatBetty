@@ -16,6 +16,9 @@ class PresetSaveUI :
         void paint(juce::Graphics &g) override;
         void resized() override;
 
+        void save();
+        void cancel();
+
     private:
         PluginProcessor         &_proc;
         juce::Label             _nameLabel;
@@ -24,6 +27,8 @@ class PresetSaveUI :
         ValueTreeTextEditor     _author;
         juce::Label             _descLabel;
         ValueTreeTextEditor     _desc;
+        juce::TextButton        _saveButton;
+        juce::TextButton        _cancelButton;
 };
 
 #endif

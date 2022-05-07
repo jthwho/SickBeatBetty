@@ -8,14 +8,26 @@ PresetSaveUI::PresetSaveUI(PluginProcessor &p) :
     _authorLabel("AuthorLabel", "Author"),
     _author(p.propsValueTree(), "author"),
     _descLabel("DescLabel", "Description"),
-    _desc(p.propsValueTree(), "desc")
+    _desc(p.propsValueTree(), "desc"),
+    _saveButton("Save"),
+    _cancelButton("Cancel")
 {
+    _saveButton.onClick = [this]{
+        save();
+    };
+    _cancelButton.onClick = [this]{
+        cancel();
+    };
+    
     addAndMakeVisible(_nameLabel);
     addAndMakeVisible(_name);
     addAndMakeVisible(_authorLabel);
     addAndMakeVisible(_author);
     addAndMakeVisible(_descLabel);
     addAndMakeVisible(_desc);
+    addAndMakeVisible(_saveButton);
+    addAndMakeVisible(_cancelButton);
+
     setSize(400, 300);
 
     _desc.setMultiLine(true, true);
@@ -50,7 +62,21 @@ void PresetSaveUI::resized() {
         Item(_authorLabel), Item(_author)
     };
     grid.performLayout(r.removeFromTop(60));
+
+    grid.templateRows = { Track(Fr(1)) };
+    grid.templateColumns = { Track(Fr(1)), Track(Fr(1)) };
+    grid.items = { Item(_saveButton), Item(_cancelButton) };
+    grid.performLayout(r.removeFromBottom(30));
     _descLabel.setBounds(r.removeFromTop(30));
     _desc.setBounds(r);
     return;
 }
+
+void PresetSaveUI::save() {
+    return;
+}
+
+void PresetSaveUI::cancel() {
+    return;
+}
+
