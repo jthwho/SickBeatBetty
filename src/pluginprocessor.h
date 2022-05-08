@@ -3,8 +3,12 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "beatgengroup.h"
 #include "applogger.h"
+#include "programmanager.h"
 
-class PluginProcessor  : public juce::AudioProcessor {
+class PluginProcessor  : 
+    public juce::AudioProcessor,
+    public ProgramManager::Listener
+{
     public:
         typedef std::unique_ptr<juce::XmlElement> StateXML;
 
@@ -40,14 +44,11 @@ class PluginProcessor  : public juce::AudioProcessor {
         void getStateInformation(juce::MemoryBlock &destData) override;
         void setStateInformation (const void *data, int sizeInBytes) override;
 
-        StateXML getStateXML();
-        bool setStateXML(const StateXML &xml);
-
         BeatGen &beatGen(int index);
         const BeatGen &beatGen(int index) const;
 
-        juce::ValueTree &propsValueTree();
-        const juce::ValueTree &propsValueTree() const;
+        ProgramManager &programManager();
+        const ProgramManager &programManager() const;
 
     private:
         // Order here maters.  There are init dependency on each other.
@@ -55,17 +56,15 @@ class PluginProcessor  : public juce::AudioProcessor {
         BeatGenGroup                                            _beatGen;
         // The params tree holds values that are shared between us and the host.
         juce::AudioProcessorValueTreeState                      _params;
-        // The props are properties that need to be stored, but are not shared with the host.
-        juce::ValueTree                                         _props;
         bool                                                    _transportRunning = false;
         std::atomic<float>                                      *_bpm = nullptr;
         double                                                  _sampleRate = 0.0;
         double                                                  _now = 0.0;
-
-        bool setStateXMLv1(const StateXML &xml);
+        ProgramManager                                          _programManager;
          
-
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
+        void programManagerProgramChanged(int value) override;
+
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };
 
@@ -77,10 +76,10 @@ inline const BeatGen &PluginProcessor::beatGen(int index) const {
     return _beatGen[index];
 }
 
-inline juce::ValueTree &PluginProcessor::propsValueTree() {
-    return _props;
+inline ProgramManager &PluginProcessor::programManager() {
+    return _programManager;
 }
 
-inline const juce::ValueTree &PluginProcessor::propsValueTree() const {
-    return _props;
+inline const ProgramManager &PluginProcessor::programManager() const {
+    return _programManager;
 }

@@ -4,8 +4,8 @@
 #include "buildinfo.h"
 #include "applogger.h"
 
-#define STATE_VERSION       1
-#define STATE_NAME          "SickBeatBettyState"
+#define APP_NAME "SickBeatBetty"
+static const juce::Identifier ParamStateIdentifier("ParamState");
 
 static int registerPluginProcessor(PluginProcessor *p) {
     juce::ignoreUnused(p);
@@ -20,8 +20,8 @@ PluginProcessor::PluginProcessor() :
     ),
     _index(registerPluginProcessor(this)),
     _beatGen(beatGenCount),
-    _params(*this, nullptr, juce::Identifier("params"), createParameterLayout()),
-    _props("props")
+    _params(*this, nullptr, ParamStateIdentifier, createParameterLayout()),
+    _programManager(APP_NAME, _params, nullptr)
 {
     juce::Logger::writeToLog(juce::String("Starting up PluginProcessor ") + juce::String(_index) + " for " + getWrapperTypeDescription(wrapperType));
     for(int i = 0; i < _beatGen.size(); i++) _beatGen[i].attachParams(_params);
@@ -80,26 +80,25 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return _programManager.programCount();
 }
 
 int PluginProcessor::getCurrentProgram() {
-    return 0;
+    return _programManager.currentProgram();
 }
 
 void PluginProcessor::setCurrentProgram(int index) {
-    juce::ignoreUnused(index);
+    _programManager.changeProgram(index);
     return;
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
-    juce::ignoreUnused (index);
-    return {};
+    return _programManager.programName(index);
 }
 
 void PluginProcessor::changeProgramName(int index, const juce::String& newName) {
-    juce::ignoreUnused(index, newName);
+    _programManager.renameProgram(index, newName);
+    return;
 }
 
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
@@ -180,92 +179,27 @@ bool PluginProcessor::hasEditor() const {
     return true;
 }
 
-PluginProcessor::StateXML PluginProcessor::getStateXML() {
-    const BuildInfo *buildInfo = getBuildInfo();
-    StateXML ret = std::make_unique<juce::XmlElement>(STATE_NAME);
-
-    ret->setAttribute("version", STATE_VERSION);
-    ret->addChildElement(_params.copyState().createXml().release());
-    ret->addChildElement(_props.createXml().release());
-
-    auto buildInfoNode = ret->createNewChildElement("BuildInfo");
-    buildInfoNode->createNewChildElement("version")->addTextElement(buildInfo->version);
-    buildInfoNode->createNewChildElement("repoident")->addTextElement(buildInfo->repoident);
-    buildInfoNode->createNewChildElement("date")->addTextElement(buildInfo->date);
-    buildInfoNode->createNewChildElement("time")->addTextElement(buildInfo->time);
-
-    auto saverInfoNode = ret->createNewChildElement("SaverInfo");
-    saverInfoNode->createNewChildElement("timestamp")->addTextElement(juce::Time::getCurrentTime().toISO8601(true));
-    saverInfoNode->createNewChildElement("os")->addTextElement(juce::SystemStats::getOperatingSystemName());
-    saverInfoNode->createNewChildElement("juceVersion")->addTextElement(juce::SystemStats::getJUCEVersion());
-    saverInfoNode->createNewChildElement("wrapperType")->addTextElement(juce::String(wrapperType));
-    saverInfoNode->createNewChildElement("wrapperName")->addTextElement(getWrapperTypeDescription(wrapperType));
-
-    return ret;
-}
-
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
-    StateXML xml = getStateXML();
+    StateXML xml = _programManager.getStateXML();
     copyXmlToBinary(*xml, destData);
     juce::Logger::writeToLog("Saved state");
     return;
 }
 
-bool PluginProcessor::setStateXMLv1(const StateXML &xml) {
-    auto paramsXml = xml->getChildByName(_params.state.getType());
-    if(paramsXml == nullptr) {
-        juce::Logger::writeToLog("Failed to get params node from state XML");
-        return false;
-    }
-
-    auto propsXml = xml->getChildByName(_props.getType());
-    if(propsXml == nullptr) {
-        juce::Logger::writeToLog("Failed to get props node from state XML");
-        return false;
-    }
-
-    auto params = juce::ValueTree::fromXml(*paramsXml);
-    if(!params.isValid()) {
-        juce::Logger::writeToLog("Failed to parse params from state XML");
-        return false;
-    }
-
-    auto props = juce::ValueTree::fromXml(*propsXml);
-    if(!props.isValid()) {
-        juce::Logger::writeToLog("Failed to parse props from state XML");
-        return false;
-    }
-
-    _params.replaceState(params);
-    _props.copyPropertiesAndChildrenFrom(props, nullptr);
-    juce::Logger::writeToLog("set state from v1 XML");
-    return true;
-}
-
-bool PluginProcessor::setStateXML(const StateXML &xml) {
-    if(xml->getTagName() != STATE_NAME) {
-        juce::Logger::writeToLog(juce::String("State XML tag name is incorrect. Expected ") + STATE_NAME + ", got " + xml->getTagName());
-        return false;
-    }
-
-    int stateVersion = xml->getIntAttribute("version", -1);
-    bool ret = false;
-    switch(stateVersion) {
-        case 1: ret = setStateXMLv1(xml); break;
-        default:
-            juce::Logger::writeToLog(juce::String::formatted("State XML version %d isn't supported", stateVersion));
-            ret = false;
-            break;
-    }
-    return ret;
-}
-
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
-    StateXML xml(getXmlFromBinary (data, sizeInBytes));
+    StateXML xml(getXmlFromBinary(data, sizeInBytes));
     if(xml.get() == nullptr) {
         juce::Logger::writeToLog("Failed to parse state XML");
         return;
     }
-    setStateXML(xml);
+    _programManager.setStateFromXML(xml);
+    return;
+}
+
+void PluginProcessor::programManagerProgramChanged(int value) {
+    juce::ignoreUnused(value);
+    ChangeDetails details;
+    details.withProgramChanged(true);
+    updateHostDisplay(details);
     return;
 }

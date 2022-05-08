@@ -2,13 +2,12 @@
 #define _PRESETMANAGER_H_
 #pragma once
 
-class PresetManager
-{
-public:
-    PresetManager();
-    ~PresetManager();
+class PresetManager {
+    public:
+        PresetManager();
+        ~PresetManager();
 
-private:
+    private:
 
 };
 

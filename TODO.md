@@ -13,6 +13,8 @@ Beat Generator
 - [x] Add swing control
 - [ ] Break apart the beat rendering and the beat serving
 - [ ] Maybe a morse code generator?  That'd be weird.  Not sure sick, but weird.
+- [x] Add support for Programs
+- [ ] Add support for single program state save/load
   
 GUI
 
@@ -28,8 +30,7 @@ GUI
 - [x] Add solo parameter to each gen
 - [ ] Add clear all solo button
 - [x] Add BPM parameter to Standalone
-- [ ] Add memory storage and a parameter to switch to memory
-- [ ] Add options to store / recall to memory slot
+- [ ] Add a UI to be able to manage the Programs
 - [x] Add some sort of way to visualize the generated beats.
 - [x] Add an About page (maybe another tab for now?)
 - [x] Add logo to about page

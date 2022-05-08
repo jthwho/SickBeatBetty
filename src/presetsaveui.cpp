@@ -4,11 +4,11 @@ PresetSaveUI::PresetSaveUI(PluginProcessor &p) :
     juce::Component("PresetSaveUI"),
     _proc(p),
     _nameLabel("NameLabel", "Name"),
-    _name(p.propsValueTree(), "name"),
+    _name(p.programManager().appState(), "name"),
     _authorLabel("AuthorLabel", "Author"),
-    _author(p.propsValueTree(), "author"),
+    _author(p.programManager().appState(), "author"),
     _descLabel("DescLabel", "Description"),
-    _desc(p.propsValueTree(), "desc"),
+    _desc(p.programManager().appState(), "desc"),
     _saveButton("Save"),
     _cancelButton("Cancel")
 {

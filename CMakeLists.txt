@@ -72,6 +72,7 @@ target_sources(${PROJECT_NAME}
         src/presetloadui.cpp
         src/presetsaveui.cpp
         src/valuetreetexteditor.cpp
+        src/programmanager.cpp
 )
 
 juce_add_binary_data(IconBinaryData
