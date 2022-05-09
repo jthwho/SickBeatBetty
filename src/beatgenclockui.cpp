@@ -78,6 +78,9 @@ BeatGenClockUI::BeatGenClockUI(BeatGen &beatGen, int clockIndex) :
     _level.setTooltip("Amount this clock should contribute to the velocity of a beat");
     addAndMakeVisible(_level);
 
+    _clockLabel.setText(juce::String::formatted("Clock %d", _clockIndex + 1), juce::dontSendNotification);
+    addAndMakeVisible(_clockLabel);
+
 }
 
 BeatGenClockUI::~BeatGenClockUI() {
@@ -86,27 +89,23 @@ BeatGenClockUI::~BeatGenClockUI() {
 
 void BeatGenClockUI::paint(juce::Graphics &g) {
     g.fillAll(juce::Colour(32, 32, 32).brighter(_clockIndex % 2 ? 0.03f : 0.0f));
-    g.setColour(juce::Colours::white);
-    g.setFont(15.0f);
-    g.drawFittedText(
-        juce::String::formatted("Clock %d", _clockIndex + 1),
-        0, 0, getWidth(), LABEL_HEIGHT, juce::Justification::centred, 1
-    );
     return;
 }
 
-void BeatGenClockUI::resetToDefaults(){
+void BeatGenClockUI::resetToDefaults() {
     _enabled.paramHelper().resetToDefault();
     _rate.paramHelper().resetToDefault();
     _phaseOffset.paramHelper().resetToDefault();
     _mixMode.paramHelper().resetToDefault();
     _level.paramHelper().resetToDefault();
+    return;
 }
 
 void BeatGenClockUI::randomizeValues() {
     _rate.paramHelper().setToRandomValue();
     _phaseOffset.paramHelper().setToRandomValue();
     _level.paramHelper().setToRandomValue();
+    return;
 }
 
 void BeatGenClockUI::resized() {
@@ -114,6 +113,8 @@ void BeatGenClockUI::resized() {
     auto r2 = r.removeFromTop(LABEL_HEIGHT);
     _reset.setBounds(r2.removeFromRight(40));
     _randomize.setBounds(r2.removeFromRight(40));
+    _clockLabel.setBounds(r2);
+    
     _enabled.setBounds(r.removeFromTop(30));
     
     auto r3 = r.removeFromBottom(30);

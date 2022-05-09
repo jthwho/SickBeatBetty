@@ -29,6 +29,7 @@ class BeatGenClockUI : public juce::Component {
         ParamComboBox       _mixMode;
         juce::Label         _levelLabel;
         ParamSlider         _level;
+        juce::Label         _clockLabel;
 
         void paint(juce::Graphics &g) override;
         void resized() override;

@@ -27,10 +27,10 @@ ProgramTableListBoxModel::~ProgramTableListBoxModel() {
 
 }
 
-EditableCell *ProgramTableListBoxModel::findEditableCellForRow(int rowNumber) const {
+EditableCell *ProgramTableListBoxModel::findEditableCell(int rowNumber, int columnId) const {
     EditableCell *ret = nullptr;
     for(auto ec : _editableCells) {
-        if(ec->rowNumber == rowNumber) {
+        if(ec->rowNumber == rowNumber && ec->columnId == columnId) {
             ret = ec;
             break;
         }
@@ -76,9 +76,16 @@ void ProgramTableListBoxModel::paintCell(juce::Graphics &g, int rowNumber, int c
     return;
 }
 
+void ProgramTableListBoxModel::startEdit(int rowNumber, int columnId) {
+    EditableCell *ec = findEditableCell(rowNumber, columnId);
+    if(ec != nullptr) ec->showEditor();
+    return;
+}
+
 void ProgramTableListBoxModel::cellDoubleClicked(int rowNumber, int columnId, const juce::MouseEvent &ev) {
-    juce::ignoreUnused(columnId);
-    _pm.changeProgram(rowNumber);
+    if(ev.mods.isLeftButtonDown()) {
+        startEdit(rowNumber, columnId);
+    }
     return;
 }
 
@@ -86,9 +93,8 @@ void ProgramTableListBoxModel::cellClicked(int rowNumber, int columnId, const ju
     juce::ignoreUnused(columnId);
     if(ev.mods.isPopupMenu()) {
         juce::PopupMenu menu;
-        menu.addItem("Rename", [this, rowNumber] {
-            EditableCell *ec = findEditableCellForRow(rowNumber);
-            if(ec != nullptr) ec->showEditor();
+        menu.addItem("Rename", [this, rowNumber, columnId] {
+            startEdit(rowNumber, columnId);
         });
         menu.addItem("Duplicate", [this, rowNumber] {
             _pm.duplicateProgram(rowNumber);
@@ -99,6 +105,9 @@ void ProgramTableListBoxModel::cellClicked(int rowNumber, int columnId, const ju
             });
         }
         menu.showMenuAsync(juce::PopupMenu::Options());
+
+    } else if(ev.mods.isLeftButtonDown()) {
+        _pm.changeProgram(rowNumber);
     }
     return;
 }

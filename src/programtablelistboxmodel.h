@@ -16,6 +16,8 @@ class ProgramTableListBoxModel :
         ProgramTableListBoxModel(ProgramManager &pm);
         ~ProgramTableListBoxModel();
 
+        void startEdit(int rowNumber, int columnId);
+
         int getNumRows() override;
         void paintRowBackground(juce::Graphics &, int rowNumber, int width, int height, bool rowIsSelected) override;
         void paintCell(juce::Graphics &, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
@@ -29,7 +31,7 @@ class ProgramTableListBoxModel :
         juce::Array<EditableCell *>     _editableCells;
 
         void labelTextChanged(juce::Label *label) override;
-        EditableCell *findEditableCellForRow(int rowNumber) const;
+        EditableCell *findEditableCell(int rowNumber, int columnId) const;
 
 };
 
