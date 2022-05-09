@@ -12,9 +12,11 @@ PluginEditor::PluginEditor(PluginProcessor &proc, juce::AudioProcessorValueTreeS
     _proc(proc),
     _menuBar(this),
     _beatGenTabs(juce::TabbedButtonBar::TabsAtTop),
-    _tooltipWindow(this)
+    _tooltipWindow(this),
+    _programEditor(proc.programManager())
 {
     addAndMakeVisible(_menuBar);
+    addAndMakeVisible(_programEditor);
 
     setTitle("Sick Beat Betty");
     setResizable(true, false);
@@ -55,7 +57,8 @@ void PluginEditor::paint(juce::Graphics &g) {
 void PluginEditor::resized() {
     auto r = getLocalBounds();
       _menuBar.setBounds(r.removeFromTop(25));
-
+      _programEditor.setBounds(r.removeFromLeft(200));
+      
     // Pretty hacky way to add the BPM slider, but it'll work.
     if(_bpm.get() != nullptr) {
         int w = 300;

@@ -73,6 +73,9 @@ target_sources(${PROJECT_NAME}
         src/presetsaveui.cpp
         src/valuetreetexteditor.cpp
         src/programmanager.cpp
+        src/programtablelistboxmodel.cpp
+        src/programtablelistbox.cpp
+        src/programeditor.cpp
 )
 
 juce_add_binary_data(IconBinaryData

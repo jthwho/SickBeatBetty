@@ -26,6 +26,7 @@ PluginProcessor::PluginProcessor() :
     juce::Logger::writeToLog(juce::String("Starting up PluginProcessor ") + juce::String(_index) + " for " + getWrapperTypeDescription(wrapperType));
     for(int i = 0; i < _beatGen.size(); i++) _beatGen[i].attachParams(_params);
     _bpm = _params.getRawParameterValue("bpm");
+    _programManager.addListener(this);
 }
 
 PluginProcessor::~PluginProcessor() {
@@ -80,7 +81,9 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return _programManager.programCount();
+    // FIXME: This is a hack to have to keep from updating the program number count.
+    return 20;
+    //return _programManager.programCount();
 }
 
 int PluginProcessor::getCurrentProgram() {
@@ -93,7 +96,10 @@ void PluginProcessor::setCurrentProgram(int index) {
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
-    return _programManager.programName(index);
+    juce::String val = _programManager.indexIsValid(index) ?
+        _programManager.programName(index) :
+        "Not Valid";
+    return val;
 }
 
 void PluginProcessor::changeProgramName(int index, const juce::String& newName) {
@@ -199,7 +205,16 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
 void PluginProcessor::programManagerProgramChanged(int value) {
     juce::ignoreUnused(value);
     ChangeDetails details;
-    details.withProgramChanged(true);
+    details.programChanged = true;
     updateHostDisplay(details);
+    juce::Logger::writeToLog("Host update from program manager program change " + juce::String(value));
+    return;
+}
+
+void PluginProcessor::programManagerListChanged() {
+    ChangeDetails details;
+    details.parameterInfoChanged = true;
+    updateHostDisplay(details);
+    juce::Logger::writeToLog("Host updated from program manager list change");
     return;
 }

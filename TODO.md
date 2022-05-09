@@ -30,7 +30,7 @@ GUI
 - [x] Add solo parameter to each gen
 - [ ] Add clear all solo button
 - [x] Add BPM parameter to Standalone
-- [ ] Add a UI to be able to manage the Programs
+- [x] Add a UI to be able to manage the Programs
 - [x] Add some sort of way to visualize the generated beats.
 - [x] Add an About page (maybe another tab for now?)
 - [x] Add logo to about page

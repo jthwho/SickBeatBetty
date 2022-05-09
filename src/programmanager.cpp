@@ -16,13 +16,12 @@ ProgramManager::ProgramManager(const juce::String &appName, juce::AudioProcessor
     _programState(ProgramStateIdentifier)
 {
     _appState.setProperty(AppNameIdentifier, appName, nullptr);
-    _programState.setProperty(NameIdentifier, "Program 1", nullptr);
+    _programState.setProperty(NameIdentifier, "Default Program", nullptr);
     // We should always have one program.
     _programStateArray.add(_programState);
     _vtsStateArray.add(_vts.copyState());
 
-    addProgram("Test Program 2");
-    addProgram("Test Program 3");
+    duplicateProgram(0);
 }
 
 ProgramManager::~ProgramManager()
@@ -69,25 +68,44 @@ void ProgramManager::renameProgram(int index, const juce::String &name) {
 }
 
 void ProgramManager::duplicateProgram(int indexToCopy) {
-    juce::ignoreUnused(indexToCopy);
-    // TODO
-    return;
-}
-
-void ProgramManager::addProgram(const juce::String &name) {
-    juce::String actualName = name.isEmpty() ? 
-        juce::String("Program ") + juce::String(programCount() + 1) :
-        name;
-    juce::ValueTree programState = _programState.createCopy();
-    programState.setProperty(NameIdentifier, actualName, nullptr);
+    if(!indexIsValid(indexToCopy)) return;
+    juce::ValueTree programState, vtsState;
+    if(indexToCopy == _currentProgram) {
+        programState = _programState.createCopy();
+        vtsState = _vts.copyState();
+    } else {
+        programState = _programStateArray[indexToCopy].createCopy();
+        vtsState = _vtsStateArray[indexToCopy].createCopy();
+    }
+    juce::String name = programState.getProperty(NameIdentifier).toString();
+    name += " Copy";
+    programState.setProperty(NameIdentifier, name, nullptr);
     _programStateArray.add(programState);
-    _vtsStateArray.add(_vts.copyState());
+    _vtsStateArray.add(vtsState);
+    _listenerList.call(
+        [](Listener &l) { l.programManagerListChanged(); }
+    );
     return;
 }
 
 void ProgramManager::deleteProgram(int indexToDelete) {
-    juce::ignoreUnused(indexToDelete);
-    // TODO
+    if(programCount() < 2 || !indexIsValid(indexToDelete)) return; // We never allow delete of the last program.
+    // If the index to delete is the current program, we've got to first move off it,
+    if(indexToDelete == _currentProgram) {
+        int nextProgram = _currentProgram - 1;
+        if(nextProgram == -1) nextProgram = _currentProgram + 1;
+        changeProgram(nextProgram);
+    }
+    // Now we're free to remove the program from the index.
+    _programStateArray.remove(indexToDelete);
+    _vtsStateArray.remove(indexToDelete);
+    // Now, make sure we update the current program index if it was below
+    // The indexToDelete
+    if(indexToDelete < _currentProgram) _currentProgram--;
+    // And let everyone know.
+    _listenerList.call([](Listener &l) {
+        l.programManagerListChanged();
+    });
     return;
 }
 
@@ -149,9 +167,6 @@ ProgramManager::StateXML ProgramManager::getStateXML() {
         item->setAttribute("index", i);
         paramStatesNode->addChildElement(item.release());
     }
-
-    juce::String xmlstr = ret->toString();
-    printf(xmlstr.toStdString().c_str());
     return ret;
 }
 

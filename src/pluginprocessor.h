@@ -64,6 +64,7 @@ class PluginProcessor  :
          
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
         void programManagerProgramChanged(int value) override;
+        void programManagerListChanged() override;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };

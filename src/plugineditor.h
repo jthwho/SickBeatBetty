@@ -4,6 +4,7 @@
 #include "beatgenui.h"
 #include "paramslider.h"
 #include "aboutui.h"
+#include "programeditor.h"
 
 class PluginEditor  : 
     public juce::AudioProcessorEditor,
@@ -33,6 +34,7 @@ class PluginEditor  :
         juce::OwnedArray<BeatGenUI>         _beatGenUI;
         juce::TooltipWindow                 _tooltipWindow;
         AboutUI                             _aboutUI;
+        ProgramEditor                       _programEditor;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

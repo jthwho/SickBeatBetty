@@ -16,6 +16,7 @@ class ProgramManager {
                     juce::ignoreUnused(value);
                 };
                 virtual void programManagerCurrentProgramNamedChanged() { };
+                virtual void programManagerListChanged() { };
         };
 
         ProgramManager(const juce::String &appName, juce::AudioProcessorValueTreeState &vts, juce::UndoManager *undo);
@@ -36,7 +37,6 @@ class ProgramManager {
         void changeProgram(int index);
         void renameProgram(int index, const juce::String &name);
         void duplicateProgram(int indexToCopy);
-        void addProgram(const juce::String &name = juce::String());
         void deleteProgram(int indexToDelete);
         void overwriteProgram(int indexToCopy, int indexToOverwrite);
         juce::String programName(int index) const;
@@ -58,8 +58,10 @@ class ProgramManager {
         juce::ListenerList<Listener>        _listenerList; 
 
         bool setStateFromXMLv1(const StateXML &xml);
+
         juce::ValueTree &programStateForIndex(int index);
         const juce::ValueTree &programStateForIndex(int index) const;
+
         void syncToArray();
         void syncFromArray();     
 };
