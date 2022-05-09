@@ -5,7 +5,9 @@
 #include <juce_data_structures/juce_data_structures.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
-class ProgramManager {
+class ProgramManager : 
+    public juce::ActionListener
+{
     public:
         typedef std::unique_ptr<juce::XmlElement> StateXML;
 
@@ -63,7 +65,9 @@ class ProgramManager {
         const juce::ValueTree &programStateForIndex(int index) const;
 
         void syncToArray();
-        void syncFromArray();     
+        void syncFromArray();
+
+        void actionListenerCallback(const juce::String &message);
 };
 
 inline juce::ValueTree &ProgramManager::appState() {
@@ -100,7 +104,7 @@ inline void ProgramManager::addListener(Listener *listener) {
 }
 
 inline void ProgramManager::removeListener(Listener *listener) {
-    _listenerList.add(listener);
+    _listenerList.remove(listener);
     return;
 }
 

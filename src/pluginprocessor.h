@@ -50,6 +50,9 @@ class PluginProcessor  :
         ProgramManager &programManager();
         const ProgramManager &programManager() const;
 
+        void addProgramChangeActionListener(juce::ActionListener *listener);
+        void removeProgramChangeActionListener(juce::ActionListener *listener);
+
     private:
         // Order here maters.  There are init dependency on each other.
         int                                                     _index;
@@ -61,7 +64,9 @@ class PluginProcessor  :
         double                                                  _sampleRate = 0.0;
         double                                                  _now = 0.0;
         ProgramManager                                          _programManager;
-         
+        juce::ActionBroadcaster                                 _programChangeActionBroadcaster;
+        int                                                     _hostProgram = 0;
+        
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
         void programManagerProgramChanged(int value) override;
         void programManagerListChanged() override;
@@ -83,4 +88,14 @@ inline ProgramManager &PluginProcessor::programManager() {
 
 inline const ProgramManager &PluginProcessor::programManager() const {
     return _programManager;
+}
+
+inline void PluginProcessor::addProgramChangeActionListener(juce::ActionListener *listener) {
+    _programChangeActionBroadcaster.addActionListener(listener);
+    return;
+}
+
+inline void PluginProcessor::removeProgramChangeActionListener(juce::ActionListener *listener) {
+    _programChangeActionBroadcaster.removeActionListener(listener);
+    return;
 }

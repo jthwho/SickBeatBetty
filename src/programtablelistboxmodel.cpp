@@ -44,7 +44,7 @@ int ProgramTableListBoxModel::getNumRows() {
 
 void ProgramTableListBoxModel::paintRowBackground(juce::Graphics &g, int rowNumber, int width, int height, bool rowIsSelected) {
     juce::Colour c = getLookAndFeel().findColour(juce::ListBox::backgroundColourId);
-    if(rowIsSelected) c = c.brighter();
+    if(rowNumber == _pm.currentProgram()) c = c.brighter();
     g.setColour(c);
     g.fillRect(0, 0, width, height);
     return;

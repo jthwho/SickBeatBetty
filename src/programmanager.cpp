@@ -38,7 +38,13 @@ const juce::ValueTree &ProgramManager::programStateForIndex(int index) const {
 }
 
 void ProgramManager::changeProgram(int index) {
-    if(index == _currentProgram || !indexIsValid(index)) return;
+    if(index == _currentProgram || !indexIsValid(index)) {
+        juce::Logger::writeToLog(juce::String::formatted(
+            "Failed to change program %d, current %d, size %d",
+            index, _currentProgram, programCount()));
+        return;
+    }
+    juce::Logger::writeToLog(juce::String::formatted("Change program %d", index));
     syncToArray(); // Write the current state of things into the program array.
     _currentProgram = index;
     syncFromArray(); // Load the newly selected index from the program array.
@@ -54,7 +60,11 @@ juce::String ProgramManager::programName(int index) const {
 }
 
 void ProgramManager::renameProgram(int index, const juce::String &name) {
-    if(!indexIsValid(index)) return;
+    if(!indexIsValid(index)) {
+        juce::Logger::writeToLog(juce::String::formatted("Failed to rename program %d", index));
+        return;
+    }
+    juce::Logger::writeToLog(juce::String::formatted("Rename program %d: ", index) + name);
     juce::ValueTree &state = programStateForIndex(index);
     if(state.isValid()) {
         state.setProperty(NameIdentifier, name, _undo);
@@ -89,7 +99,11 @@ void ProgramManager::duplicateProgram(int indexToCopy) {
 }
 
 void ProgramManager::deleteProgram(int indexToDelete) {
-    if(programCount() < 2 || !indexIsValid(indexToDelete)) return; // We never allow delete of the last program.
+    if(programCount() < 2 || !indexIsValid(indexToDelete)) {
+        juce::Logger::writeToLog(juce::String::formatted("Failed to delete %d, %d in list", indexToDelete, programCount()));
+        return; // We never allow delete of the last program.
+    }
+    juce::Logger::writeToLog(juce::String::formatted("Delete program %d", indexToDelete));
     // If the index to delete is the current program, we've got to first move off it,
     if(indexToDelete == _currentProgram) {
         int nextProgram = _currentProgram - 1;
@@ -273,4 +287,16 @@ bool ProgramManager::setStateFromXML(const StateXML &xml) {
             break;
     }
     return ret;
+}
+
+void ProgramManager::actionListenerCallback(const juce::String &message) {
+    juce::StringArray tokens = juce::StringArray::fromTokens(message, false);
+    if(tokens.size() < 2) return;
+    if(tokens[0] == "ProgramChange") {
+        int val = tokens[1].getIntValue();
+        if(val < 0) val = 0;
+        if(val >= _programStateArray.size()) val = _programStateArray.size() - 1;
+        changeProgram(val);
+    }
+    return;
 }

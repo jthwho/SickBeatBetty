@@ -27,10 +27,12 @@ PluginProcessor::PluginProcessor() :
     for(int i = 0; i < _beatGen.size(); i++) _beatGen[i].attachParams(_params);
     _bpm = _params.getRawParameterValue("bpm");
     _programManager.addListener(this);
+    addProgramChangeActionListener(&_programManager);
 }
 
 PluginProcessor::~PluginProcessor() {
-
+    _programManager.removeListener(this);
+    removeProgramChangeActionListener(&_programManager);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParameterLayout() const {
@@ -82,7 +84,7 @@ double PluginProcessor::getTailLengthSeconds() const {
 
 int PluginProcessor::getNumPrograms() {
     // FIXME: This is a hack to have to keep from updating the program number count.
-    return 20;
+    return 100;
     //return _programManager.programCount();
 }
 
@@ -91,15 +93,15 @@ int PluginProcessor::getCurrentProgram() {
 }
 
 void PluginProcessor::setCurrentProgram(int index) {
-    _programManager.changeProgram(index);
+    _hostProgram = index;
+    juce::Logger::writeToLog("Host Program Change " + juce::String(index));
+    juce::String msg = "ProgramChange " + juce::String(index);
+    _programChangeActionBroadcaster.sendActionMessage(msg);
     return;
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
-    juce::String val = _programManager.indexIsValid(index) ?
-        _programManager.programName(index) :
-        "Not Valid";
-    return val;
+    return juce::String(index);
 }
 
 void PluginProcessor::changeProgramName(int index, const juce::String& newName) {
@@ -139,8 +141,16 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
         transportRunning = true;
     }
 
+    /*
+    int programChange = -1;
+    for(auto item : midi) {
+        auto msg = item.getMessage();
+        if(msg.isController() && msg.getControllerNumber() == 127) {
+            programChange = msg.getControllerValue();
+        }
+    }
+    */
  
-
     if(transportRunning != _transportRunning) {
         juce::Logger::writeToLog(juce::String("Transport ") + (transportRunning ? "Running" : "Stopped"));
         _transportRunning = transportRunning;
@@ -166,7 +176,15 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &audio, juce::MidiBu
             _beatGen[i].generate(genState, midi);
         }
     }
-    
+
+    /*
+    if(programChange != -1) {
+        juce::Logger::writeToLog("Program Change " + juce::String(programChange));
+        juce::String msg = "ProgramChange " + juce::String(programChange);
+        _programChangeActionBroadcaster.sendActionMessage(msg);
+    }
+    */
+
     _now += qnPerBlock;
     return;
 }
@@ -203,18 +221,23 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
 }
 
 void PluginProcessor::programManagerProgramChanged(int value) {
-    juce::ignoreUnused(value);
+    int max = _programManager.programCount();
+    int hostValue = _hostProgram;
+    if(hostValue < 0) hostValue = 0;
+    if(hostValue >= max) hostValue = max - 1;
+    if(hostValue == value) return; // The host and the program manager agree, no need to update the host.
+    _hostProgram = value;
     ChangeDetails details;
     details.programChanged = true;
     updateHostDisplay(details);
-    juce::Logger::writeToLog("Host update from program manager program change " + juce::String(value));
+    juce::Logger::writeToLog("Update host on program change " + juce::String(value));
     return;
 }
 
 void PluginProcessor::programManagerListChanged() {
-    ChangeDetails details;
-    details.parameterInfoChanged = true;
-    updateHostDisplay(details);
-    juce::Logger::writeToLog("Host updated from program manager list change");
+    //ChangeDetails details;
+    //details.parameterInfoChanged = true;
+    //updateHostDisplay(details);
+    //juce::Logger::writeToLog("Update host on program list change");
     return;
 }
