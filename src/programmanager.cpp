@@ -4,10 +4,17 @@
 #define STATE_NAME      "HowardLogicState"
 #define STATE_VERSION   1
 
+static const juce::Identifier NodeIDIdentifier("NodeID");
 static const juce::Identifier NameIdentifier("name");
 static const juce::Identifier AppNameIdentifier("appName");
 static const juce::Identifier AppStateIdentifier("AppState");
 static const juce::Identifier ProgramStateIdentifier("ProgramState");
+
+juce::File ProgramManager::userStateStoragePath() {
+    auto ret = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("SickBeatBetty");
+    if(!ret.isDirectory()) ret.createDirectory();
+    return ret;
+}
 
 ProgramManager::ProgramManager(const juce::String &appName, juce::AudioProcessorValueTreeState &vts, juce::UndoManager *undo) :
     _undo(undo),
@@ -16,12 +23,13 @@ ProgramManager::ProgramManager(const juce::String &appName, juce::AudioProcessor
     _programState(ProgramStateIdentifier)
 {
     _appState.setProperty(AppNameIdentifier, appName, nullptr);
+    _appState.setProperty(NodeIDIdentifier, juce::Uuid().toString(), nullptr);
     _programState.setProperty(NameIdentifier, "Default Program", nullptr);
+    _programState.setProperty(NodeIDIdentifier, juce::Uuid().toString(), nullptr);
     // We should always have one program.
     _programStateArray.add(_programState);
     _vtsStateArray.add(_vts.copyState());
 
-    duplicateProgram(0);
 }
 
 ProgramManager::~ProgramManager()
@@ -90,6 +98,7 @@ void ProgramManager::duplicateProgram(int indexToCopy) {
     juce::String name = programState.getProperty(NameIdentifier).toString();
     name += " Copy";
     programState.setProperty(NameIdentifier, name, nullptr);
+    programState.setProperty(NodeIDIdentifier, juce::Uuid().toString(), nullptr);
     _programStateArray.add(programState);
     _vtsStateArray.add(vtsState);
     _listenerList.call(

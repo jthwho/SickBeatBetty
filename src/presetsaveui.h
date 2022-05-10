@@ -16,7 +16,7 @@ class PresetSaveUI :
         void paint(juce::Graphics &g) override;
         void resized() override;
 
-        void save();
+        void save(bool replace = false);
         void cancel();
 
     private:
@@ -29,6 +29,8 @@ class PresetSaveUI :
         ValueTreeTextEditor     _desc;
         juce::TextButton        _saveButton;
         juce::TextButton        _cancelButton;
+
+        void closeDialog(int ret);
 };
 
 #endif

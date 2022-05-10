@@ -21,6 +21,8 @@ class ProgramManager :
                 virtual void programManagerListChanged() { };
         };
 
+        static juce::File userStateStoragePath();
+
         ProgramManager(const juce::String &appName, juce::AudioProcessorValueTreeState &vts, juce::UndoManager *undo);
         ~ProgramManager();
 
