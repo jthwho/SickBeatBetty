@@ -16,6 +16,22 @@ juce::File ProgramManager::userStateStoragePath() {
     return ret;
 }
 
+ProgramManager::PresetInfoArray ProgramManager::getPresetsInFolder(const juce::File &path) {
+    PresetInfoArray ret;
+    if(!path.isDirectory()) return ret;
+    printf("Scanning %s for presets...\n", path.getFullPathName().toStdString().c_str());
+    auto files = path.findChildFiles(
+        juce::File::findFiles | juce::File::ignoreHiddenFiles,
+        false, "*.preset");
+    for(int i = 0; i < files.size(); i++) {
+        PresetInfo info;
+        info.index = i;
+        info.path = files[i].getFullPathName();
+        ret.add(info);
+    }
+    return ret;
+}
+
 ProgramManager::ProgramManager(const juce::String &appName, juce::AudioProcessorValueTreeState &vts, juce::UndoManager *undo) :
     _undo(undo),
     _vts(vts),

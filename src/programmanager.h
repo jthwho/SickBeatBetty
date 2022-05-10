@@ -11,6 +11,15 @@ class ProgramManager :
     public:
         typedef std::unique_ptr<juce::XmlElement> StateXML;
 
+        class PresetInfo {
+            public:
+                int             index = -1;
+                juce::String    path;
+                juce::String    name;
+                juce::String    author;
+                juce::String    desc;
+        };
+        typedef juce::Array<PresetInfo> PresetInfoArray;
         class Listener {
             public:
                 virtual ~Listener() { };
@@ -22,6 +31,7 @@ class ProgramManager :
         };
 
         static juce::File userStateStoragePath();
+        static PresetInfoArray getPresetsInFolder(const juce::File &path);
 
         ProgramManager(const juce::String &appName, juce::AudioProcessorValueTreeState &vts, juce::UndoManager *undo);
         ~ProgramManager();

@@ -2,14 +2,31 @@
 #define _PRESETLOADUI_H_
 #pragma once
 
-class PresetLoadUI
+#include <juce_gui_basics/juce_gui_basics.h>
+#include "pluginprocessor.h"
+#include "presettablelistbox.h"
+
+class PresetLoadUI : 
+    public juce::Component 
 {
-public:
-    PresetLoadUI();
-    ~PresetLoadUI();
+    public:
+        PresetLoadUI(PluginProcessor &p);
+        ~PresetLoadUI();
 
-private:
+        void paint(juce::Graphics &g) override;
+        void resized() override;
 
+        void load();
+        void cancel();
+
+    private:
+        PluginProcessor         &_proc;
+        juce::TextButton        _loadButton;
+        juce::TextButton        _cancelButton;
+        PresetTableListBox      _presets;
+
+        void updateList();
+        void closeDialog(int ret);
 };
 
-#endif
+#endif /* _PRESETLOADUI_H_ not defined */

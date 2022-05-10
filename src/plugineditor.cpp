@@ -96,6 +96,12 @@ void PluginEditor::menuItemSelected (int menuItemID, int topLevelMenuIndex) {
 }
 
 void PluginEditor::loadPreset() {
+    juce::DialogWindow::LaunchOptions dl;
+    dl.dialogTitle = "Load Preset";
+    dl.componentToCentreAround = this;
+    dl.useNativeTitleBar = false;
+    dl.content.setOwned(new PresetLoadUI(_proc));
+    dl.launchAsync();
     return;
 }
 

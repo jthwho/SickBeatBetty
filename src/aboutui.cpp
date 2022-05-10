@@ -29,9 +29,10 @@ AboutUI::AboutUI() :
     _pluginLink.setJustificationType(juce::Justification::left);
     addAndMakeVisible(_pluginLink);
 
-    _descLabel.setText(desc, juce::sendNotification);
+    
     _descLabel.setReadOnly(true);
     _descLabel.setMultiLine(true, true);
+    _descLabel.setText(desc, juce::sendNotification);
     addAndMakeVisible(_descLabel);
     
 }

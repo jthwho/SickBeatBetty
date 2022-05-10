@@ -53,7 +53,7 @@ void ProgramTableListBoxModel::paintRowBackground(juce::Graphics &g, int rowNumb
 void ProgramTableListBoxModel::paintCell(juce::Graphics &g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) {
     g.setFont(_font);
     switch(columnId) {
-        case 0:
+        case 1:
             if(rowNumber == _pm.currentProgram()) {
                 juce::Colour c(0, 100, 0);
                 juce::FillType ft;
@@ -65,7 +65,7 @@ void ProgramTableListBoxModel::paintCell(juce::Graphics &g, int rowNumber, int c
             g.setColour(getLookAndFeel().findColour(juce::ListBox::textColourId));
             g.drawText(juce::String(rowNumber), 4, 0, width - 8, height, juce::Justification::centredLeft, true);
             break;
-        case 1:
+        case 2:
             //g.setColour(getLookAndFeel().findColour(juce::ListBox::textColourId));
             //g.drawText(_pm.programName(rowNumber), 2, 0, width - 4, height, juce::Justification::centredLeft, true);
             break;
@@ -115,7 +115,7 @@ void ProgramTableListBoxModel::cellClicked(int rowNumber, int columnId, const ju
 juce::Component *ProgramTableListBoxModel::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, juce::Component *existingComponentToUpdate) {
     juce::Component *ret = nullptr;
     switch(columnId) {
-        case 1: {
+        case 2: {
             EditableCell *ec = dynamic_cast<EditableCell *>(existingComponentToUpdate);
             if(ec == NULL) {
                 ec = new EditableCell(*this);
@@ -139,7 +139,7 @@ juce::Component *ProgramTableListBoxModel::refreshComponentForCell(int rowNumber
 void ProgramTableListBoxModel::labelTextChanged(juce::Label *label) {
     EditableCell *ec = dynamic_cast<EditableCell *>(label);
     if(ec == nullptr) return;
-    if(ec->columnId == 1) {
+    if(ec->columnId == 2) {
         _pm.renameProgram(ec->rowNumber, ec->getText());
     }
     return;

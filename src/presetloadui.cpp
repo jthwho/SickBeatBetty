@@ -1,11 +1,73 @@
 #include "presetloadui.h"
 
-PresetLoadUI::PresetLoadUI()
+PresetLoadUI::PresetLoadUI(PluginProcessor &p) : 
+    _proc(p),
+    _loadButton("Load"),
+    _cancelButton("Cancel")
 {
+    _loadButton.onClick = [this] {
+        load();
+    };
+    _cancelButton.onClick = [this] {
+        cancel();
+    };
+    addAndMakeVisible(_loadButton);
+    addAndMakeVisible(_cancelButton);
+    addAndMakeVisible(_presets);
+    setSize(400, 300);
+    updateList();
+}
+
+PresetLoadUI::~PresetLoadUI() {
 
 }
 
-PresetLoadUI::~PresetLoadUI()
-{
+void PresetLoadUI::paint(juce::Graphics &g) {
 
+}
+
+void PresetLoadUI::resized() {
+    auto r = getLocalBounds();
+
+    juce::Grid grid;
+    using Track = juce::Grid::TrackInfo;
+    using Fr = juce::Grid::Fr;
+    using Px = juce::Grid::Px;
+    using Item = juce::GridItem;
+/*
+    grid.templateRows = { Track(Fr(1)), Track(Fr(1)) };
+    grid.templateColumns = { Track(Px(60)), Track(Fr(1)) };
+    grid.items = { 
+        Item(_nameLabel), Item(_name),
+        Item(_authorLabel), Item(_author)
+    };
+    grid.performLayout(r.removeFromTop(60));
+*/
+    grid.templateRows = { Track(Fr(1)) };
+    grid.templateColumns = { Track(Fr(1)), Track(Fr(1)) };
+    grid.items = { Item(_loadButton), Item(_cancelButton) };
+    grid.performLayout(r.removeFromBottom(30));
+
+    _presets.setBounds(r);
+    return;
+}
+
+void PresetLoadUI::updateList() {
+    
+    return;
+}
+
+void PresetLoadUI::load() {
+    return;
+}
+
+void PresetLoadUI::cancel() {
+    closeDialog(1);
+    return;
+}
+
+void PresetLoadUI::closeDialog(int ret) {
+    juce::DialogWindow* dw = findParentComponentOfClass<juce::DialogWindow>();
+    if(dw != nullptr) dw->exitModalState(ret);
+    return;
 }

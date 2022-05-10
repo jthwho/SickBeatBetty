@@ -14,6 +14,7 @@ AppLogger::AppLogger(const juce::String &fn) {
 
 AppLogger::~AppLogger() {
     _stream->flush();
+    if(this == juce::Logger::getCurrentLogger()) juce::Logger::setCurrentLogger(nullptr);
 }
 
 void AppLogger::setup(const juce::String &filename) {

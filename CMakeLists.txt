@@ -76,6 +76,7 @@ target_sources(${PROJECT_NAME}
         src/programtablelistboxmodel.cpp
         src/programtablelistbox.cpp
         src/programeditor.cpp
+        src/presettablelistbox.cpp
 )
 
 juce_add_binary_data(IconBinaryData
