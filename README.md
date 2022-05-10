@@ -24,3 +24,6 @@ I haven't yet gotten the Linux build up and tested.
 
 TODO  
 I haven't yet gotten the Mac build up and tested.
+
+![Betty!](icons/betty-white-devil-horns.png)
+
