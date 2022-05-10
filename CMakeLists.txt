@@ -6,7 +6,7 @@ set(APP_NAME "SICKBEATBETTY")
 set(APP_VENDOR "HOWARDLOGIC")
 set(APP_HUMAN_NAME "Sick Beat Betty")
 set(APP_HUMAN_VENDOR "Howard Logic")
-set(APP_VERSION "1.0.0")
+set(APP_VERSION "1.0.1")
 
 execute_process(
     COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
