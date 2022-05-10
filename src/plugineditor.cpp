@@ -103,6 +103,7 @@ void PluginEditor::savePreset() {
     juce::DialogWindow::LaunchOptions dl;
     dl.dialogTitle = "Save Preset";
     dl.componentToCentreAround = this;
+    dl.useNativeTitleBar = false;
     dl.content.setOwned(new PresetSaveUI(_proc));
     dl.launchAsync();
     return;
