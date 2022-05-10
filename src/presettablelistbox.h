@@ -12,7 +12,9 @@ class PresetTableListBox :
     public:
         PresetTableListBox();
         ~PresetTableListBox();
-
+        
+        ProgramManager::PresetInfo PresetTableListBox::getSelectedInfo() const;
+        
         int getNumRows();
         void paintRowBackground(juce::Graphics &g, int rowNumber, int width, int height, bool rowIsSelected);
         void paintCell(juce::Graphics &g, int rowNumber, int columnId, int width, int height, bool rowIsSelected);

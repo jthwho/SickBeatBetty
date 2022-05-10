@@ -25,7 +25,6 @@ class PresetLoadUI :
         juce::TextButton        _cancelButton;
         PresetTableListBox      _presets;
 
-        void updateList();
         void closeDialog(int ret);
 };
 

@@ -16,6 +16,13 @@ PresetTableListBox::~PresetTableListBox() {
 
 }
 
+ProgramManager::PresetInfo PresetTableListBox::getSelectedInfo() const {
+    int selected = _table.getSelectedRow();
+    return (selected < 0 || selected >= _presets.size()) ?
+        ProgramManager::PresetInfo() :
+        _presets[selected];
+}
+
 int PresetTableListBox::getNumRows() {
     return _presets.size();
 }

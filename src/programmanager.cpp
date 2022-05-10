@@ -42,7 +42,7 @@ ProgramManager::PresetInfoArray ProgramManager::getPresetsInFolder(const juce::F
 
         PresetInfo info;
         info.index = i;
-        info.path = files[i].getFullPathName();
+        info.path = files[i];
         info.name = appState.getProperty(PresetNameIdentifier).toString();
         info.author = appState.getProperty(PresetAuthorIdentifer).toString();
         info.desc = appState.getProperty(PresetDescIdentifier).toString();
@@ -330,6 +330,12 @@ bool ProgramManager::setStateFromXML(const StateXML &xml) {
             juce::Logger::writeToLog(juce::String::formatted("State XML version %d isn't supported", stateVersion));
             ret = false;
             break;
+    }
+    if(ret) {
+        _listenerList.call([](Listener &l) {
+            l.programManagerListChanged();
+            l.programManagerCurrentProgramNamedChanged();
+        });
     }
     return ret;
 }

@@ -15,7 +15,6 @@ PresetLoadUI::PresetLoadUI(PluginProcessor &p) :
     addAndMakeVisible(_cancelButton);
     addAndMakeVisible(_presets);
     setSize(400, 300);
-    updateList();
 }
 
 PresetLoadUI::~PresetLoadUI() {
@@ -52,12 +51,35 @@ void PresetLoadUI::resized() {
     return;
 }
 
-void PresetLoadUI::updateList() {
-    
-    return;
-}
-
 void PresetLoadUI::load() {
+    ProgramManager::PresetInfo info = _presets.getSelectedInfo();
+    if(!info.isValid()) {
+        juce::NativeMessageBox::showMessageBoxAsync(
+            juce::MessageBoxIconType::WarningIcon,
+            "Failed To Load Preset", "You should probably select a preset first.",
+            this
+        );
+        return;
+    }
+    juce::XmlDocument doc(info.path);
+    auto root = doc.getDocumentElement();
+    if(root == nullptr) {
+        juce::NativeMessageBox::showMessageBoxAsync(
+            juce::MessageBoxIconType::WarningIcon,
+            "Failed To Load Preset", "Failed to parse preset\n" + info.path.getFullPathName(),
+            this
+        );
+        return;
+    }
+    if(!_proc.programManager().setStateFromXML(root)) {
+        juce::NativeMessageBox::showMessageBoxAsync(
+            juce::MessageBoxIconType::WarningIcon,
+            "Failed To Load Preset", "Failed to read preset\n" + info.path.getFullPathName(),
+            this
+        );
+        return;
+    }
+    closeDialog(0);
     return;
 }
 

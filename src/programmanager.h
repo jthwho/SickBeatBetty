@@ -15,11 +15,15 @@ class ProgramManager :
             public:
                 int             index = -1;
                 bool            starred = false;
-                juce::String    path;
+                juce::File      path;
                 juce::String    name;
                 juce::String    author;
                 juce::String    desc;
                 juce::String    id;
+
+                bool isValid() const {
+                    return index != -1;
+                }
         };
         typedef juce::Array<PresetInfo> PresetInfoArray;
         class Listener {
