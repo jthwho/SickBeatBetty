@@ -5,8 +5,8 @@ PresetTableListBox::PresetTableListBox() :
     juce::TableListBoxModel()
 {
     addAndMakeVisible(_table);
-    _table.getHeader().addColumn("Name", 1, 50, 50, -1);
-    _table.getHeader().addColumn("Author", 2, 40, 40, -1);
+    _table.getHeader().addColumn("Name", 1, 200, 200, -1);
+    _table.getHeader().addColumn("Author", 2, 100, 100, -1);
     _table.getHeader().resizeAllColumnsToFit(true);
     _table.setModel(this);
     updatePresetList();
@@ -35,7 +35,7 @@ void PresetTableListBox::paintCell(juce::Graphics &g, int rowNumber, int columnI
     switch(columnId) {
         case 1:
             g.setColour(getLookAndFeel().findColour(juce::ListBox::textColourId));
-            g.drawText(info.path, 4, 0, width - 8, height, juce::Justification::centredLeft, true);
+            g.drawText(info.name, 4, 0, width - 8, height, juce::Justification::centredLeft, true);
             break;
         case 2:
             g.setColour(getLookAndFeel().findColour(juce::ListBox::textColourId));
@@ -50,6 +50,10 @@ void PresetTableListBox::paintCell(juce::Graphics &g, int rowNumber, int columnI
 
 void PresetTableListBox::resized() {
     auto r = getLocalBounds();
+    int authorWidth = 150;
+    int nameWidth = getWidth() - authorWidth;
+    _table.getHeader().setColumnWidth(1, nameWidth);
+    _table.getHeader().setColumnWidth(2, authorWidth);
     _table.setBounds(r);
     return;
 }

@@ -5,10 +5,13 @@
 #define STATE_VERSION   1
 
 static const juce::Identifier NodeIDIdentifier("NodeID");
-static const juce::Identifier NameIdentifier("name");
-static const juce::Identifier AppNameIdentifier("appName");
+static const juce::Identifier NameIdentifier("Name");
+static const juce::Identifier AppNameIdentifier("AppName");
 static const juce::Identifier AppStateIdentifier("AppState");
 static const juce::Identifier ProgramStateIdentifier("ProgramState");
+static const juce::Identifier PresetNameIdentifier("PresetName");
+static const juce::Identifier PresetAuthorIdentifer("PresetAuthor");
+static const juce::Identifier PresetDescIdentifier("PresetDesc");
 
 juce::File ProgramManager::userStateStoragePath() {
     auto ret = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("SickBeatBetty");
@@ -23,10 +26,27 @@ ProgramManager::PresetInfoArray ProgramManager::getPresetsInFolder(const juce::F
     auto files = path.findChildFiles(
         juce::File::findFiles | juce::File::ignoreHiddenFiles,
         false, "*.preset");
+
+    // FIXME: Once we move to a proper preset data container we should
+    // just use the standard preset loading here.  But for right now
+    // it's just quick and dirty to get the details we care about.
     for(int i = 0; i < files.size(); i++) {
+        juce::XmlDocument doc(files[i]);
+        auto root = doc.getDocumentElement();
+        if(root == nullptr) continue;
+        auto appStateXML = root->getChildByName(AppStateIdentifier);
+        if(appStateXML == nullptr) continue;
+        juce::ValueTree appState = juce::ValueTree::fromXml(*appStateXML);
+        if(!appState.isValid()) continue;
+        if(appState.getProperty(AppNameIdentifier).toString() != "SickBeatBetty") continue; // FIXME: don't hardcode program name
+
         PresetInfo info;
         info.index = i;
         info.path = files[i].getFullPathName();
+        info.name = appState.getProperty(PresetNameIdentifier).toString();
+        info.author = appState.getProperty(PresetAuthorIdentifer).toString();
+        info.desc = appState.getProperty(PresetDescIdentifier).toString();
+        info.id = appState.getProperty(NodeIDIdentifier).toString();
         ret.add(info);
     }
     return ret;

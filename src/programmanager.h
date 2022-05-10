@@ -14,10 +14,12 @@ class ProgramManager :
         class PresetInfo {
             public:
                 int             index = -1;
+                bool            starred = false;
                 juce::String    path;
                 juce::String    name;
                 juce::String    author;
                 juce::String    desc;
+                juce::String    id;
         };
         typedef juce::Array<PresetInfo> PresetInfoArray;
         class Listener {
