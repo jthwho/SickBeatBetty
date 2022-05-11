@@ -151,6 +151,10 @@ BoolVector mixBeats(const BoolVector &b1, const BoolVector &b2, int mode) {
 BeatGen::BeatGen(int idx) :
     _index(idx) 
 {
+    // Clang apparently doesn't like static constexpr variables.
+    // It'll compile but fail to link.  Lame.
+    int __maxBars = maxBars;
+    int __maxClockRate = maxClockRate;
 
     _enabled.setup(
         _params, 
@@ -205,10 +209,10 @@ BeatGen::BeatGen(int idx) :
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_steps", _index),
         juce::String::formatted("G%d Steps", _index + 1),
-        [](const ParamValue &p) {
+        [__maxClockRate](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(), 
-                1, BeatGen::maxClockRate, 16,
+                1, __maxClockRate, 16,
                 juce::String()
             );
         },
@@ -232,10 +236,10 @@ BeatGen::BeatGen(int idx) :
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_bars", _index),
         juce::String::formatted("G%d Bars", _index + 1),
-        [](const ParamValue &p) {
+        [__maxBars](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(),
-                1, BeatGen::maxBars, 1,
+                1, __maxBars, 1,
                 juce::String()
             );
         },
