@@ -204,7 +204,7 @@ BeatGen::BeatGen(int idx) :
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_steps", _index),
         juce::String::formatted("G%d Steps", _index + 1),
-        [](const ParamValue &p) {
+        [this](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(), 
                 1, maxClockRate, 16,
@@ -231,7 +231,7 @@ BeatGen::BeatGen(int idx) :
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_bars", _index),
         juce::String::formatted("G%d Bars", _index + 1),
-        [](const ParamValue &p) {
+        [this](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(),
                 1, maxBars, 1,
