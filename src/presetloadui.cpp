@@ -22,7 +22,8 @@ PresetLoadUI::~PresetLoadUI() {
 }
 
 void PresetLoadUI::paint(juce::Graphics &g) {
-
+    juce::ignoreUnused(g);
+    return;
 }
 
 void PresetLoadUI::resized() {

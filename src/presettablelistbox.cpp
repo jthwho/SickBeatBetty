@@ -28,6 +28,7 @@ int PresetTableListBox::getNumRows() {
 }
 
 void PresetTableListBox::paintRowBackground(juce::Graphics &g, int rowNumber, int width, int height, bool rowIsSelected) {
+    juce::ignoreUnused(rowNumber);
     juce::Colour c = getLookAndFeel().findColour(juce::ListBox::backgroundColourId);
     if(rowIsSelected) c = c.brighter();
     g.setColour(c);
@@ -36,6 +37,7 @@ void PresetTableListBox::paintRowBackground(juce::Graphics &g, int rowNumber, in
 }
 
 void PresetTableListBox::paintCell(juce::Graphics &g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) {
+    juce::ignoreUnused(rowIsSelected);
     if(rowNumber < 0 || rowNumber >= _presets.size()) return;
     g.setFont(_font);
     const ProgramManager::PresetInfo &info = _presets.getReference(rowNumber);

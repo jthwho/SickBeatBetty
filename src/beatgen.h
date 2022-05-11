@@ -141,10 +141,10 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
 
         typedef std::vector<Beat> BeatVector;
 
-        static const int firstNote = 36;
-        static const int maxClockCount = 4;
-        static const int maxBars = 8;
-        static const int maxClockRate = maxBars * 16;
+        static constexpr int firstNote = 36;
+        static constexpr int maxClockCount = 4;
+        static constexpr int maxBars = 8;
+        static constexpr int maxClockRate = maxBars * 16;
 
         static const juce::StringArray &mixModeNames();
 
