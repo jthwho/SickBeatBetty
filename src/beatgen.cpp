@@ -151,6 +151,7 @@ BoolVector mixBeats(const BoolVector &b1, const BoolVector &b2, int mode) {
 BeatGen::BeatGen(int idx) :
     _index(idx) 
 {
+
     _enabled.setup(
         _params, 
         juce::String::formatted(PARAM_PREFIX "%d_enabled", _index),
@@ -204,10 +205,10 @@ BeatGen::BeatGen(int idx) :
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_steps", _index),
         juce::String::formatted("G%d Steps", _index + 1),
-        [this](const ParamValue &p) {
+        [](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(), 
-                1, maxClockRate, 16,
+                1, BeatGen::maxClockRate, 16,
                 juce::String()
             );
         },
@@ -231,10 +232,10 @@ BeatGen::BeatGen(int idx) :
         _params,
         juce::String::formatted(PARAM_PREFIX "%d_bars", _index),
         juce::String::formatted("G%d Bars", _index + 1),
-        [this](const ParamValue &p) {
+        [](const ParamValue &p) {
             return std::make_unique<juce::AudioParameterInt>(
                 p.id(), p.name(),
-                1, maxBars, 1,
+                1, BeatGen::maxBars, 1,
                 juce::String()
             );
         },
