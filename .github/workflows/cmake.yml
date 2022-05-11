@@ -32,4 +32,16 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    - name: Upload VST3
+      uses: actions/upload-artifact@v3
+      with:
+        name: "Sick Beat Betty.vst3"
+        path: build/SickBeatBetty_artefacts/Debug/VST3/
+
+    - name: Upload Standalone
+      uses: actions/upload-artifact@v3
+      with:
+        name: "Sick Beat Betty.exe"
+        path: build/SickBeatBetty_artefacts/Debug/Standalone/
+
       
