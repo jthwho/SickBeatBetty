@@ -167,11 +167,11 @@ class BeatGen : public juce::AudioProcessorValueTreeState::Listener {
         void parameterChanged(const juce::String &parameterID, float newValue);
 
     private:
-        int                                     _index = 0;
-        int                                     _lastNote = -1;
+        int                                     _index { 0 };
+        int                                     _lastNote { -1 };
         BeatVector                              _beats;
-        std::atomic<bool>                       _needsUpdate = true;
-        std::atomic<int>                        _currentBeat = 0;
+        std::atomic<bool>                       _needsUpdate { true };
+        std::atomic<int>                        _currentBeat { 0 };
         juce::ActionBroadcaster                 _actionBroadcaster;
 
         // Parameters

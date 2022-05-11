@@ -1,5 +1,5 @@
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "pluginprocessor.h"
+#include "plugineditor.h"
 #include "BinaryData.h"
 #include "presetloadui.h"
 #include "presetsaveui.h"
