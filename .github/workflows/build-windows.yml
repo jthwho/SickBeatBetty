@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -29,12 +29,12 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: "Sick Beat Betty.vst3"
-        path: build/SickBeatBetty_artefacts/Debug/VST3/
+        path: build/SickBeatBetty_artefacts/${{env.BUILD_TYPE}}/VST3/
 
     - name: Upload Standalone
       uses: actions/upload-artifact@v3
       with:
         name: "Sick Beat Betty.exe"
-        path: build/SickBeatBetty_artefacts/Debug/Standalone/
+        path: build/SickBeatBetty_artefacts/${{env.BUILD_TYPE}}/Standalone/
 
       

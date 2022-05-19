@@ -1,12 +1,26 @@
 #include "buildinfo.h"
 
+static const char *_buildType() {
+#ifdef _MSC_VER
+#   ifdef _DEBUG
+    return "Debug";
+#   else
+    return "Release";
+#   endif
+#else
+    return "@BUILD_INFO_TYPE@";
+#endif
+
+};
+
 static const BuildInfo _buildInfo = {
     "@BUILD_INFO_NAME@",
     "@BUILD_INFO_VERSION@",
     "@BUILD_INFO_REPOIDENT@",
     "@BUILD_INFO_DATE@",
     "@BUILD_INFO_TIME@",
-    "@BUILD_INFO_HOSTNAME@"
+    "@BUILD_INFO_HOSTNAME@",
+    _buildType()
 };
 
 const BuildInfo *getBuildInfo() {

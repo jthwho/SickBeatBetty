@@ -22,17 +22,25 @@ set_property(GLOBAL APPEND
     "${CMAKE_SOURCE_DIR}/.git/index"
 )
 
+project(${APP_NAME} VERSION ${APP_VERSION})
+add_subdirectory(JUCE)                    # JUCE is a submodule.  Make sure it has been properly cloned.
+
 # Capture any other build info variables
+# Must be below project()
 set(BUILD_INFO_NAME "${APP_HUMAN_NAME}")
 set(BUILD_INFO_VERSION "${APP_VERSION}")
 string(TIMESTAMP BUILD_INFO_DATE "%Y-%m-%d")
 string(TIMESTAMP BUILD_INFO_TIME "%H:%M:%S")
+set(BUILD_INFO_TYPE "${CMAKE_BUILD_TYPE}")
 cmake_host_system_information(RESULT BUILD_INFO_HOSTNAME QUERY HOSTNAME)
 configure_file(src/buildinfo.cpp.in buildinfo.cpp)
 
-project(${APP_NAME} VERSION ${APP_VERSION})
-
-add_subdirectory(JUCE)                    # JUCE is a submodule.  Make sure it has been properly cloned.
+# Make sure we regenerate the buildinfo.cpp file each time we build.
+add_custom_target(
+    invalidate_build_info 
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/buildinfo.cpp.in
+)
 
 juce_add_plugin(${PROJECT_NAME}
     VERSION ${PROJECT_VERSION}

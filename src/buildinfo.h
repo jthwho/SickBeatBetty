@@ -9,6 +9,7 @@ typedef struct {
     const char *date;
     const char *time;
     const char *hostname;
+    const char *type;
 } BuildInfo;
 
 const BuildInfo *getBuildInfo();
