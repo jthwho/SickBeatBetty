@@ -26,6 +26,7 @@ PluginProcessor::PluginProcessor() :
     juce::Logger::writeToLog(juce::String("Starting up PluginProcessor ") + juce::String(_index) + " for " + getWrapperTypeDescription(wrapperType));
     for(int i = 0; i < _beatGen.size(); i++) _beatGen[i].attachParams(_params);
     _bpm = _params.getRawParameterValue("bpm");
+    _programManager.init();
     _programManager.addListener(this);
     addProgramChangeActionListener(&_programManager);
 }

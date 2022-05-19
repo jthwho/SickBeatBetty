@@ -54,23 +54,29 @@ ProgramManager::PresetInfoArray ProgramManager::getPresetsInFolder(const juce::F
 
 ProgramManager::ProgramManager(const juce::String &appName, juce::AudioProcessorValueTreeState &vts, juce::UndoManager *undo) :
     _undo(undo),
+    _appName(appName),
     _vts(vts),
     _appState(AppStateIdentifier),
     _programState(ProgramStateIdentifier)
 {
-    _appState.setProperty(AppNameIdentifier, appName, nullptr);
-    _appState.setProperty(NodeIDIdentifier, juce::Uuid().toString(), nullptr);
-    _programState.setProperty(NameIdentifier, "Default Program", nullptr);
-    _programState.setProperty(NodeIDIdentifier, juce::Uuid().toString(), nullptr);
-    // We should always have one program.
-    _programStateArray.add(_programState);
-    _vtsStateArray.add(_vts.copyState());
+    
 
 }
 
 ProgramManager::~ProgramManager()
 {
 
+}
+
+void ProgramManager::init() {
+    _appState.setProperty(AppNameIdentifier, _appName, nullptr);
+    _appState.setProperty(NodeIDIdentifier, juce::Uuid().toString(), nullptr);
+    _programState.setProperty(NameIdentifier, "Default Program", nullptr);
+    _programState.setProperty(NodeIDIdentifier, juce::Uuid().toString(), nullptr);
+    // We should always have one program.
+    _programStateArray.add(_programState);
+    _vtsStateArray.add(_vts.copyState());
+    return;
 }
 
 juce::ValueTree &ProgramManager::programStateForIndex(int index) {

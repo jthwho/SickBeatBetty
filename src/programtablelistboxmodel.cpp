@@ -43,6 +43,7 @@ int ProgramTableListBoxModel::getNumRows() {
 }
 
 void ProgramTableListBoxModel::paintRowBackground(juce::Graphics &g, int rowNumber, int width, int height, bool rowIsSelected) {
+    juce::ignoreUnused(rowIsSelected);
     juce::Colour c = getLookAndFeel().findColour(juce::ListBox::backgroundColourId);
     if(rowNumber == _pm.currentProgram()) c = c.brighter();
     g.setColour(c);
@@ -51,6 +52,7 @@ void ProgramTableListBoxModel::paintRowBackground(juce::Graphics &g, int rowNumb
 }
 
 void ProgramTableListBoxModel::paintCell(juce::Graphics &g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) {
+    juce::ignoreUnused(rowIsSelected);
     g.setFont(_font);
     switch(columnId) {
         case 1:
@@ -60,7 +62,7 @@ void ProgramTableListBoxModel::paintCell(juce::Graphics &g, int rowNumber, int c
                 ft.setColour(c);
                 g.setColour(c);
                 g.setFillType(ft);
-                g.fillRoundedRectangle(1, 2, width - 2, height - 4, 5);
+                g.fillRoundedRectangle(1.0f, 2.0f, (float)width - 2.0f, (float)height - 4.0f, 5.0f);
             }
             g.setColour(getLookAndFeel().findColour(juce::ListBox::textColourId));
             g.drawText(juce::String(rowNumber), 4, 0, width - 8, height, juce::Justification::centredLeft, true);
@@ -113,6 +115,7 @@ void ProgramTableListBoxModel::cellClicked(int rowNumber, int columnId, const ju
 }
 
 juce::Component *ProgramTableListBoxModel::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, juce::Component *existingComponentToUpdate) {
+    juce::ignoreUnused(isRowSelected);
     juce::Component *ret = nullptr;
     switch(columnId) {
         case 2: {

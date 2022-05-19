@@ -374,7 +374,8 @@ const ParamValue *BeatGen::getParameter(int id, int index) const {
 void BeatGen::parameterChanged(const juce::String &parameterID, float newValue) {
     if(parameterID == getParameter(ParamSteps)->id()) {
         for(int i = 0; i < maxClockCount; i++) {
-            getParameter(ParamClockRate, i)->notifyHost();
+            const ParamValue *pv = getParameter(ParamClockRate, i);
+            if(pv != NULL) pv->notifyHost();
         }
     }
     juce::ignoreUnused(parameterID, newValue);
@@ -396,7 +397,7 @@ std::unique_ptr<juce::AudioProcessorParameterGroup> BeatGen::createParameterLayo
 
 void BeatGen::attachParams(juce::AudioProcessorValueTreeState &params) {
     for(auto i : _params) {
-        jassert(i->attach(params));
+        i->attach(params);
         params.addParameterListener(i->id(), this);
     }
     return;

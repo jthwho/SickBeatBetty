@@ -42,6 +42,8 @@ class ProgramManager :
         ProgramManager(const juce::String &appName, juce::AudioProcessorValueTreeState &vts, juce::UndoManager *undo);
         ~ProgramManager();
 
+        void init();
+        
         // Acces to the app state tree.  This is a single tree that persists
         // across the entire application.
         juce::ValueTree &appState();
@@ -70,6 +72,7 @@ class ProgramManager :
     private:
         int                                 _currentProgram = 0;
         juce::UndoManager                   *_undo = nullptr;
+        juce::String                        _appName;
         juce::AudioProcessorValueTreeState  &_vts;
         juce::ValueTree                     _programState;
         juce::ValueTree                     _appState;

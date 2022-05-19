@@ -58,8 +58,12 @@ class ParamValue {
         }
 
         bool attach(const juce::AudioProcessorValueTreeState &state) {
+            jassert(_value == nullptr);
+            jassert(_param == nullptr);
             _value = state.getRawParameterValue(_id);
             _param = state.getParameter(_id);
+            jassert(_value != nullptr);
+            jassert(_param != nullptr);
             return _value != nullptr;
         }
 
@@ -79,6 +83,8 @@ class ParamValue {
         }
 
         void notifyHost() const {
+            jassert(_value != nullptr);
+            jassert(_param != nullptr);
             // This is a really lame hack to ensure the new value doesn't
             // match the previous value as there's no way to force an
             // update if the new value matches the previous value.
@@ -95,9 +101,9 @@ class ParamValue {
         juce::String name() const { return _name; }
         juce::RangedAudioParameter *param() const { return _param; }
         int index() const { return _index; }
-        float value() const { return *_value; }
-        bool valueBool() const { return *_value >= 0.5; }
-        int valueInt() const { return (int)*_value; }
+        float value() const { jassert(_value != nullptr); return *_value; }
+        bool valueBool() const { jassert(_value != nullptr); return *_value >= 0.5; }
+        int valueInt() const { jassert(_value != nullptr); return (int)*_value; }
 
     private:
         juce::String                _id;
