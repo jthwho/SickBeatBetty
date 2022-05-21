@@ -1,0 +1,13 @@
+
+stages: 
+  - build
+
+build-win10-x64:
+    tags:
+        - win10
+    stage: build
+    script:
+        - cmake -B build64 -S .
+        - cmake --build build64 --target installer --config Release
+
+
