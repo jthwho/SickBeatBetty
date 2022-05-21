@@ -11,6 +11,7 @@ build-win10-x64:
     stage: build
     script:
         - cmake -B build64 -S .
+        - cmake --build build64 --target SICKBEATBETTY_All --config Release
         - cmake --build build64 --target installer --config Release
 
 
