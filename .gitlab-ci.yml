@@ -5,13 +5,22 @@ variables:
 stages: 
   - build
 
-build-win10-x64:
+build-release-win10-x64:
+    variables:
+      BUILD_FOLDER: build64
+      BUILD_CONFIG: Release
     tags:
         - win10
     stage: build
     script:
-        - cmake -B build64 -S .
-        - cmake --build build64 --target SICKBEATBETTY_All --config Release
-        - cmake --build build64 --target installer --config Release
+        - cmake -B ${BUILD_FOLDER} -S .
+        - cmake --build ${BUILD_FOLDER} --target SICKBEATBETTY_All --config ${BUILD_CONFIG}
+        - cmake --build ${BUILD_FOLDER} --target installer --config ${BUILD_CONFIG}
+    artifacts:
+      paths:
+        - ${BUILD_FOLDER}/Sick Beat Betty-*.msi
+        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
+        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty.exe
+      expire_in: 1 week
 
 
