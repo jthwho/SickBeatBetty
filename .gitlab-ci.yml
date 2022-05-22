@@ -5,15 +5,9 @@ variables:
 stages: 
   - build
 
-build-release-win10-x64:
-    variables:
-      BUILD_FOLDER: build64
-      BUILD_CONFIG: Release
-    tags:
-        - win10
-    stage: build
+.cmake-build:
     script:
-        - cmake -B ${BUILD_FOLDER} -S .
+        - cmake -G ${BUILD_GENERATOR} -A ${BUILD_ARCH} -B ${BUILD_FOLDER} -S .
         - cmake --build ${BUILD_FOLDER} --target SICKBEATBETTY_All --config ${BUILD_CONFIG}
         - cmake --build ${BUILD_FOLDER} --target installer --config ${BUILD_CONFIG}
     artifacts:
@@ -24,4 +18,11 @@ build-release-win10-x64:
         - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty.exe
       expire_in: 1 week
 
-
+build-win10-release-x64:
+  extends: .cmake-build
+  stage: build
+  variables:
+    BUILD_GENERATOR: "Visual Studio 17 2022"
+    BUILD_ARCH: x64
+    BUILD_CONFIG: Release
+    BUILD_FOLDER: build64
