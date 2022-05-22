@@ -28,3 +28,15 @@ build-win10-release-x64:
     BUILD_ARCH: x64
     BUILD_CONFIG: Release
     BUILD_FOLDER: build64
+
+build-win10-release-x32:
+  extends: .cmake-build
+  stage: build
+  tags: 
+    - win10
+  variables:
+    BUILD_GENERATOR: "Visual Studio 17 2022"
+    BUILD_ARCH: Win32
+    BUILD_CONFIG: Release
+    BUILD_FOLDER: build32
+    
