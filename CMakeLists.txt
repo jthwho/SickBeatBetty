@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/")
 
 find_package(Git QUIET REQUIRED)
 
@@ -115,7 +116,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 install(TARGETS ${PROJECT_NAME}_Standalone
-    DESTINATION "."
+    RUNTIME DESTINATION "."
     COMPONENT Standalone
 )
 
@@ -130,11 +131,6 @@ install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
     COMPONENT Runtime
 )
 
-#set(CPACK_GENERATOR NSIS)
-
-set(CPACK_GENERATOR WIX)
-set(CPACK_WIX_UPGRADE_GUID "6541AC2E-DA46-481C-9CF6-FE3CDF3A4C3F")
-
 set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "Runtime")
 set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "Runtime files needed by both the standalone and plugins")
 
@@ -148,6 +144,7 @@ set(CPACK_COMPONENT_VST3_DEPENDS Runtime)
 
 set(CPACK_COMPONENTS_ALL VST3 Standalone Runtime)
 set(CPACK_COMPONENT_GROUPING ALL_COMPONENTS_IN_ONE)
+
 set(CPACK_PACKAGE_NAME ${APP_HUMAN_NAME})
 set(CPACK_PACKAGE_VENDOR ${APP_HUMAN_VENDOR})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
@@ -159,19 +156,34 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY ${APP_HUMAN_NAME})
 #set(CPACK_PACKAGE_DESCRIPTION_FILE "description.txt")
 #set(CPACK_RESOURCE_FILE_WELCOME "welcome.txt")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-set(CPACK_WIX_LICENSE_RTF "${CPACK_RESOURCE_FILE_LICENSE}")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
-SET(CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/InstallerConfig.cmake")
+set(CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/InstallerConfig.cmake")
 
-INCLUDE(CPack)
+if(WIN32)
+    set(CPACK_GENERATOR WIX)
+    set(CPACK_WIX_LICENSE_RTF "${CPACK_RESOURCE_FILE_LICENSE}")
 
-#cpack_add_component(${PROJECT_NAME}_VST3
-#    DISPLAY_NAME "VST 3 Plugin"
-#)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        # Confiuration for 64bit build
+        set(CPACK_WIX_UPGRADE_GUID "6541AC2E-DA46-481C-9CF6-FE3CDF3A4C3F")
+    else()
+        # Configuration for 32bit build
+        set(CPACK_WIX_UPGRADE_GUID "6541AC2E-DA46-481C-9CF6-FE3CDF3A4C3E")
+    endif()
+else()
+    set(CPACK_GENERATOR ZIP)    
+endif()
 
-#cpack_add_component(${PROJECT_NAME}_Standalone
-#    DISPLAY_NAME "Standalone EXE"
-#)
+include(CodeSign)
+code_sign_is_enabled(can_sign)
+if(can_sign)
+	set(M_SIGN_UAC_URL "https://howardlogic.com")
+	configure_file(CMakeModules/CodeSignScript.cmake.in codesign_post.cmake @ONLY)
+	list(APPEND CPACK_POST_BUILD_SCRIPTS 
+		"${CMAKE_BINARY_DIR}/codesign_post.cmake"
+	)
+endif()
+include(CPack)
 
 # Hack to allow building a installer from within VS Code
 ADD_CUSTOM_TARGET(installer

@@ -1,0 +1,57 @@
+# Script that can be called from add_custom_target/command to sign files.
+# You can pass the list of files to sign as a -DFILES_TO_SIGN=... argument on the
+# command line, and/or you can set the FILES_TO_SIGN var before calling configure_file()
+# on the script template.
+cmake_minimum_required(VERSION 3.4.3)
+
+
+# Use configure_file() to pass in general platform info as well as settings for CodeSign.cmake.
+set(CMAKE_MODULE_PATH        "@CMAKE_MODULE_PATH@")
+
+set(WIN32                    "@WIN32@")
+set(APPLE                    "@APPLE@")
+set(ANDROID                  "@ANDROID@")
+set(IOS                      "@IOS@")
+set(CMAKE_SYSTEM_NAME        "@CMAKE_SYSTEM_NAME@")
+set(CMAKE_HOST_SYSTEM_NAME   "@CMAKE_HOST_SYSTEM_NAME@")
+set(CMAKE_OSX_SYSROOT        "@CMAKE_OSX_SYSROOT@")
+set(CMAKE_SIZEOF_VOID_P      "@CMAKE_SIZEOF_VOID_P@")
+
+set(SIGNTOOL                 "@SIGNTOOL@")
+set(OSSLSIGNCODE             "@OSSLSIGNCODE@")
+set(M_SIGN_DISABLE           "@M_SIGN_DISABLE@")
+set(M_SIGN_CERT_NAME         "@M_SIGN_CERT_NAME@")
+set(M_SIGN_CERT_FILE         "@M_SIGN_CERT_FILE@")
+set(M_SIGN_PASSWORD          "@M_SIGN_PASSWORD@")
+set(M_SIGN_CERT_STORE        "@M_SIGN_CERT_STORE@")
+set(M_SIGN_CERT_STORE_GLOBAL "@M_SIGN_CERT_STORE_GLOBAL@")
+set(M_SIGN_DUAL              "@M_SIGN_DUAL@")
+set(M_SIGN_UAC_URL           "@M_SIGN_UAC_URL@")
+set(M_SIGN_KEYCHAIN          "@M_SIGN_KEYCHAIN@")
+set(M_SIGN_ENTITLEMENTS      "@M_SIGN_ENTITLEMENTS@")
+
+
+include(CodeSign)
+
+# Predefined files from template generation
+set(predef_files "@FILES_TO_SIGN@")
+
+# Add the predefined files to the list
+list(APPEND FILES_TO_SIGN "${predef_files}")
+
+# Add the cpack files to the list
+list(APPEND FILES_TO_SIGN "${CPACK_PACKAGE_FILES}")
+
+#message(STATUS "VARS:")
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
+
+#message(STATUS "ENV:")
+#execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+
+# Sign the files.
+message(STATUS "CODESIGN: ${FILES_TO_SIGN}")
+code_sign_files(${FILES_TO_SIGN})
