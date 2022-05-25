@@ -43,6 +43,9 @@ add_custom_target(
     COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/buildinfo.cpp.in
 )
 
+# FIXME: We'll want to do something better later.
+set(app_icon "${CMAKE_SOURCE_DIR}/icons/betty-white-devil-horns.png")
+
 juce_add_plugin(${PROJECT_NAME}
     VERSION ${PROJECT_VERSION}
     COMPANY_NAME "${APP_HUMAN_VENDOR}"
@@ -56,7 +59,7 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_CODE SBB1
     FORMATS AU VST3 Standalone
     PRODUCT_NAME "${APP_HUMAN_NAME}"
-    
+    ICON_BIG "${app_icon}"  
 )
 
 include_directories(src)
@@ -115,9 +118,14 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_warning_flags
 )
 
+
 install(TARGETS ${PROJECT_NAME}_Standalone
     RUNTIME DESTINATION "."
     COMPONENT Standalone
+)
+
+set_property(INSTALL "$<TARGET_FILE_NAME:${PROJECT_NAME}_Standalone>"
+  PROPERTY CPACK_START_MENU_SHORTCUTS "Sick Beat Betty Standalone"
 )
 
 install(TARGETS ${PROJECT_NAME}_VST3
@@ -155,14 +163,19 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${APP_HUMAN_NAME})
 #set(CPACK_PACKAGE_DESCRIPTION_FILE "description.txt")
 #set(CPACK_RESOURCE_FILE_WELCOME "welcome.txt")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.rtf")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 set(CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/InstallerConfig.cmake")
 
 if(WIN32)
+    set(WIX_DIR "${CMAKE_SOURCE_DIR}/installer/wix")
     set(CPACK_GENERATOR WIX)
-    set(CPACK_WIX_LICENSE_RTF "${CPACK_RESOURCE_FILE_LICENSE}")
-
+    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/icons/sbb.ico")
+    # image at top of all pages besides welcome and completion, 493 x 58 px
+    set(CPACK_WIX_UI_BANNER    "${WIX_DIR}/sbb_wix_banner.png") 
+    # background image on welcome and completion pages, 493 x 312 px
+    set(CPACK_WIX_UI_DIALOG    "${WIX_DIR}/sbb_wix_dialog.png") 
+    
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         # Confiuration for 64bit build
         set(CPACK_WIX_UPGRADE_GUID "6541AC2E-DA46-481C-9CF6-FE3CDF3A4C3F")

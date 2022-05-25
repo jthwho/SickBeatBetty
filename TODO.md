@@ -18,7 +18,7 @@ Beat Generator
   
 GUI
 
-- [ ] Add some sort of icon
+- [x] Add some sort of icon
 - [ ] Work out a better color scheme
 - [ ] Maybe some better looking widgets?
 - [x] Change the clock mix to a combo box w/ names
