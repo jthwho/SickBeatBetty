@@ -16,7 +16,7 @@ stages:
       name: "${BUILD_PACKAGE_NAME}"
       expire_in: 1 week
 
-build-win10-release-x64:
+win10-release-x64:
   extends: .cmake-build
   stage: build
   tags: 
@@ -32,7 +32,7 @@ build-win10-release-x64:
         - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
         - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty.exe
 
-build-win10-release-x32:
+win10-release-x32:
   extends: .cmake-build
   stage: build
   tags: 
@@ -48,7 +48,7 @@ build-win10-release-x32:
         - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
         - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty.exe
 
-build-ubuntu-release-x64:
+ubuntu-release-x64:
   extends: .cmake-build
   stage: build
   tags: 
@@ -60,6 +60,7 @@ build-ubuntu-release-x64:
     BUILD_FOLDER: build
   artifacts:
     paths:
-        - ${BUILD_FOLDER}/Sick Beat Betty-*.zip
+      - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
+      - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty
       
             
