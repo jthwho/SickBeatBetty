@@ -7,15 +7,11 @@ stages:
 
 .cmake-build:
     script:
-        - cmake -G ${BUILD_GENERATOR} -A ${BUILD_ARCH} -B ${BUILD_FOLDER} -S .
-        - cmake --build ${BUILD_FOLDER} --target SICKBEATBETTY_All --config ${BUILD_CONFIG}
-        - cmake --build ${BUILD_FOLDER} --target installer --config ${BUILD_CONFIG}
+        - cmake -G "${BUILD_GENERATOR}" -A "${BUILD_ARCH}" -B "${BUILD_FOLDER}" -S .
+        - cmake --build "${BUILD_FOLDER}" --target SICKBEATBETTY_All --config "${BUILD_CONFIG}"
+        - cmake --build "${BUILD_FOLDER}" --target installer --config "${BUILD_CONFIG}"
     artifacts:
       name: "$env:CI_PROJECT_NAME-$env:CI_JOB_NAME-$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
-      paths:
-        - ${BUILD_FOLDER}/Sick Beat Betty-*.msi
-        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
-        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty.exe
       expire_in: 1 week
 
 build-win10-release-x64:
@@ -28,6 +24,11 @@ build-win10-release-x64:
     BUILD_ARCH: x64
     BUILD_CONFIG: Release
     BUILD_FOLDER: build64
+  artifacts:
+    paths:
+        - ${BUILD_FOLDER}/Sick Beat Betty-*.msi
+        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
+        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty.exe
 
 build-win10-release-x32:
   extends: .cmake-build
@@ -39,4 +40,24 @@ build-win10-release-x32:
     BUILD_ARCH: Win32
     BUILD_CONFIG: Release
     BUILD_FOLDER: build32
-    
+  artifacts:
+    paths:
+        - ${BUILD_FOLDER}/Sick Beat Betty-*.msi
+        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
+        - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty.exe
+
+build-ubuntu-release-x64:
+  extends: .cmake-build
+  stage: build
+  tags: 
+    - ubuntu
+  variables:
+    BUILD_GENERATOR: "Unix Makefiles"
+    BUILD_ARCH:
+    BUILD_CONFIG: Release
+    BUILD_FOLDER: build
+  artifacts:
+    paths:
+        - ${BUILD_FOLDER}/Sick Beat Betty-*.zip
+      
+            
