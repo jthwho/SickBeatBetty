@@ -53,7 +53,7 @@ build-ubuntu-release-x64:
     - ubuntu
   variables:
     BUILD_GENERATOR: "Unix Makefiles"
-    BUILD_ARCH:
+    BUILD_ARCH: ""
     BUILD_CONFIG: Release
     BUILD_FOLDER: build
   artifacts:
