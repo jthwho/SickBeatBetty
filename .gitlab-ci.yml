@@ -60,7 +60,7 @@ ubuntu-release-x64:
     BUILD_FOLDER: build
   artifacts:
     paths:
-      - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/VST3/Sick Beat Betty.vst3/
-      - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/${BUILD_CONFIG}/Standalone/Sick Beat Betty
+      - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/VST3/Sick Beat Betty.vst3/
+      - ${BUILD_FOLDER}/SICKBEATBETTY_artefacts/Standalone/Sick Beat Betty
       
             
