@@ -9,9 +9,9 @@ stages:
     variables:
       BUILD_PACKAGE_NAME: "${CI_PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
     script:
-        - cmake -G "${BUILD_GENERATOR}" -A "${BUILD_ARCH}" -B "${BUILD_FOLDER}" -S .
+        - cmake -DM_SIGN_CERT_NAME="${CERT_NAME}" -G "${BUILD_GENERATOR}" -A "${BUILD_ARCH}" -B "${BUILD_FOLDER}" -S .
         - cmake --build "${BUILD_FOLDER}" --target SICKBEATBETTY_All --config "${BUILD_CONFIG}"
-        - cmake -DM_SIGN_CERT_NAME="${CERT_NAME}" --build "${BUILD_FOLDER}" --target installer --config "${BUILD_CONFIG}"
+        - cmake --build "${BUILD_FOLDER}" --target installer --config "${BUILD_CONFIG}"
     artifacts:
       name: "${BUILD_PACKAGE_NAME}"
       expire_in: 1 week
