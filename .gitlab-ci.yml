@@ -1,6 +1,8 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_UPDATE_FLAGS: --jobs 4
+  CERT_NAME: $CERT_NAME
+  CERT_PASS: $CERT_PASS
   
 stages: 
   - build
