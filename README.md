@@ -9,21 +9,22 @@ The plugin provides a set of generators that can be targeted towards a specific 
 Here's a basic overview of the clocking arrangement in a single generator:
 
 ![Sick Beat Betty Generator Overview](docs/SickBeatBetty_BlockDiagram.drawio.png)
+
 ## Building
 
 ### Windows
 
-I'm building with VS Code plus the C++ and cmake extentions.  You'll need to also have the community version of visual studio installed as well, at it uses the compiler for there.
+I'm building with VS Code plus the C++ and cmake extensions.  You'll need to also have the community version of visual studio installed as well, at it uses the compiler for there.
 
 ### Linux
 
-TODO  
-I haven't yet gotten the Linux build up and tested.
+I'm building raw VST3 and standalone applications for Ubuntu.  I've been told these work on other distributions,
+but I've not personally tested them.
 
 ### Mac
 
-TODO  
-I haven't yet gotten the Mac build up and tested.
+TODO :-(  
+I've not attempted this yet, although it should work since JUCE can build on that
+platform.  If you're interested in helping setup a build for this platform, please reach out.
 
 ![Betty!](icons/betty-white-devil-horns.png)
-
