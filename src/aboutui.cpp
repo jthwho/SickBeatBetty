@@ -6,7 +6,9 @@ constexpr char descHead[] = "A MIDI Beat Generator\n"
                             "Created by:\n"
                             "Jason Howard & Anthony Smith";
 
-AboutUI::AboutUI() : _pluginLink("Visit our plugin website", juce::URL("https://howardlogic.com")) {
+AboutUI::AboutUI() :
+ _pluginLink("Visit our plugin website",
+             juce::URL("https://jasonhoward.com/projects/sickbeatbetty/")) {
     const BuildInfo * buildInfo = getBuildInfo();
     juce::String      desc      = descHead;
     desc << "\n";

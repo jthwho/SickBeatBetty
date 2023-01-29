@@ -3,15 +3,17 @@
 #pragma once
 
 typedef struct {
-    const char *name;
-    const char *version;
-    const char *repoident;
-    const char *date;
-    const char *time;
-    const char *hostname;
-    const char *type;
+    const char * name;
+    const char * version;
+    const char * repoident;
+    const char * date;
+    const char * time;
+    const char * hostname;
+    const char * type;
+    int          betaVersion;
+    int          rcVersion;
 } BuildInfo;
 
-const BuildInfo *getBuildInfo();
+const BuildInfo * getBuildInfo();
 
 #endif

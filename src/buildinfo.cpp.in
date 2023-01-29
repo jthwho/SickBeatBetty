@@ -20,7 +20,9 @@ static const BuildInfo _buildInfo = {
     "@BUILD_INFO_DATE@",
     "@BUILD_INFO_TIME@",
     "@BUILD_INFO_HOSTNAME@",
-    _buildType()
+    _buildType(),
+    @BUILD_INFO_VERSION_BETA@,
+    @BUILD_INFO_VERSION_RC@
 };
 
 const BuildInfo *getBuildInfo() {

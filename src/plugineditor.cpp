@@ -4,6 +4,7 @@
 #include "presetloadui.h"
 #include "presetsaveui.h"
 #include "aboutui.h"
+#include "buildinfo.h"
 
 #define MENU_NAME_PRESET "Preset"
 #define MENU_NAME_HELP   "Help"
@@ -18,8 +19,15 @@ PluginEditor::PluginEditor(PluginProcessor & proc, juce::AudioProcessorValueTree
  _programEditor(proc.programManager()) {
     addAndMakeVisible(_menuBar);
     addAndMakeVisible(_programEditor);
-
-    setTitle("Sick Beat Betty");
+    const BuildInfo * buildInfo = getBuildInfo();
+    auto              title     = juce::String::formatted("Sick Beat Betty %s", buildInfo->version);
+    if(buildInfo->rcVersion) {
+        title += " [RELEASE CANDIDATE]";
+    } else if(buildInfo->betaVersion) {
+        title += " [BETA]";
+    }
+    setTitle(title);
+    setName(title);
     setResizable(true, false);
     for(int i = 0; i < PluginProcessor::beatGenCount; i++) {
         _beatGenUI.add(std::make_unique<BeatGenUI>(_proc.beatGen(i)));
