@@ -15,6 +15,8 @@ Beat Generator
 - [ ] Maybe a morse code generator?  That'd be weird.  Not sure sick, but weird.
 - [x] Add support for Programs
 - [ ] Add support for single program state save/load
+- [ ] Modulators
+- [x] 16 beatgen instead of 8
   
 GUI
 
@@ -37,5 +39,7 @@ GUI
 - [x] Add git hash to about page
 - [ ] Add tip jar to about page
 - [ ] Circular beats visualization
-- [ ] Uh, preset load and save, maybe?
-  
+- [x] Uh, preset load and save, maybe?
+- [ ] Allow resizing of interface (zoom)
+- [ ] Reorder presets by dragging
+- [ ] Undo / Redo

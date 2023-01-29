@@ -2,22 +2,21 @@
 #include "aboutui.h"
 #include "buildinfo.h"
 
-constexpr char descHead[] = 
-    "A MIDI Beat Generator\n"
-    "Created by:\n"
-    "Jason Howard & Anthony Smith";
+constexpr char descHead[] = "A MIDI Beat Generator\n"
+                            "Created by:\n"
+                            "Jason Howard & Anthony Smith";
 
-AboutUI::AboutUI() :
-    _pluginLink("Visit our plugin website", juce::URL("https://howardlogic.com"))
-{
-    const BuildInfo *buildInfo = getBuildInfo();
-    juce::String desc = descHead;
+AboutUI::AboutUI() : _pluginLink("Visit our plugin website", juce::URL("https://howardlogic.com")) {
+    const BuildInfo * buildInfo = getBuildInfo();
+    juce::String      desc      = descHead;
     desc << "\n";
     desc << "\nVersion " << buildInfo->version;
     desc << "\nGIT " << buildInfo->repoident;
-    desc << "\nBuilt " << buildInfo->date << " " << buildInfo->time << " (" << buildInfo->hostname << ")";
+    desc << "\nBuilt " << buildInfo->date << " " << buildInfo->time << " (" << buildInfo->hostname
+         << ")";
     desc << "\nType " << buildInfo->type;
-    juce::Image bettyImage = juce::ImageCache::getFromMemory(BinaryData::bettywhitedevilhorns_png, BinaryData::bettywhitedevilhorns_pngSize);
+    juce::Image bettyImage = juce::ImageCache::getFromMemory(
+     BinaryData::bettywhitedevilhorns_png, BinaryData::bettywhitedevilhorns_pngSize);
     _betty.setImage(bettyImage, juce::RectanglePlacement::xMid | juce::RectanglePlacement::yMid);
     addAndMakeVisible(_betty);
 
@@ -29,21 +28,18 @@ AboutUI::AboutUI() :
     _pluginLink.setJustificationType(juce::Justification::left);
     addAndMakeVisible(_pluginLink);
 
-    
     _descLabel.setReadOnly(true);
     _descLabel.setMultiLine(true, true);
     _descLabel.setText(desc, juce::sendNotification);
     addAndMakeVisible(_descLabel);
-    
+    setSize(800, 400);
 }
 
-AboutUI::~AboutUI() {
-
-}
+AboutUI::~AboutUI() {}
 
 void AboutUI::resized() {
     const int margin = 30;
-    auto r = getLocalBounds();
+    auto      r      = getLocalBounds();
 
     // Setup the margins
     r.removeFromTop(margin);
@@ -61,7 +57,7 @@ void AboutUI::resized() {
     return;
 }
 
-void AboutUI::paint(juce::Graphics &g) {
-    juce::ignoreUnused(g);
+void AboutUI::paint(juce::Graphics & g) {
+    g.fillAll(juce::Colour(32, 32, 32));
     return;
 }

@@ -5,18 +5,18 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 class AboutUI : public juce::Component {
-    public:
-        AboutUI();
-        ~AboutUI();
+  public:
+    AboutUI();
+    ~AboutUI();
 
-    private:
-        juce::ImageComponent        _betty;
-        juce::Label                 _nameLabel;
-        juce::HyperlinkButton       _pluginLink;
-        juce::TextEditor            _descLabel;
-        
-        void resized() override;
-        void paint(juce::Graphics &g) override;
+  private:
+    juce::ImageComponent  _betty;
+    juce::Label           _nameLabel;
+    juce::HyperlinkButton _pluginLink;
+    juce::TextEditor      _descLabel;
+
+    void resized() override;
+    void paint(juce::Graphics & g) override;
 };
 
 #endif
