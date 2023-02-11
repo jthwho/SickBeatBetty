@@ -405,7 +405,7 @@ void BeatGen::attachParams(juce::AudioProcessorValueTreeState &params) {
 
 static double phaseMultiplyAndShift(double inputPhase, double multiply, double shift, double &phaseCount) {
     double ret = modf(inputPhase * multiply, &phaseCount);
-    ret = modf(abs(ret + shift + 1.0), &phaseCount);
+    ret = modf(std::abs(ret + shift + 1.0), &phaseCount);
     return ret;
 }
 
